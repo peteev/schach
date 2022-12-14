@@ -39,3 +39,4 @@ class Bauer():
     def __init__(self):
 """
 #bruh dsddsd
+print(3)
