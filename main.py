@@ -38,4 +38,4 @@ while running:
 class Bauer():
     def __init__(self):
 """
-#bruh 
+#bruh ds
