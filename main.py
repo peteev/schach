@@ -4,28 +4,26 @@ import pygame
 from PIL import Image
 import sys
 
-# Klassen
-"""
-# Bauer
+# Klassen (https://www.w3schools.com/python/python_classes.asp)
+
 class Bauer():
     def __init__(self):
-"""
-
-img = Image.open("1200px-Bristol.zoo.capybara.arp.jpg")
-
-img.show()
-
-
-
-
-
-
-
-
-
-
-
-
+        pass
+class Springer():
+    def __init__(self):
+        pass
+class Laeufer():
+    def __init__(self):
+        pass
+class Turm():
+    def __init__(self):
+        pass
+class Dame():
+    def __init__(self):
+        pass
+class Koenig():
+    def __init__(self):
+        pass
 
 
 
@@ -80,6 +78,7 @@ while running:
     # Position der Maus
     mouse = pygame.mouse.get_pos()
     
+    # Erstellung des Quit-Knopfes
     if width/2 <= mouse[0] <= width/2+140 and height/2 <= mouse[1] <= height/2+40:
         pygame.draw.rect(screen,color_light,[width/2,height/2,140,40])
     else:
