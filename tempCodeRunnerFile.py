@@ -1,2 +1,15 @@
+def createWin(): # Fenster erstellen (https://www.pythonguis.com/tutorials/create-gui-tkinter/)
+    root.title("Schach")
+    root.configure(background="white")
+    root.minsize(500,500)
+    root.maxsize(1000,750)
+    root.geometry("600x600+50+50")
+    root.mainloop()
 
-print(wB1.umwandlung, wB1.posY, wB1.farbe)
+createWin()
+def createGrid(): # Grid erstellen (https://www.pythontutorial.net/tkinter/tkinter-grid/)
+    for i in range(0,8):
+        root.columnconfigure(i,5)
+        root.rowconfigure(i,5)
+    black = ttk.Button(image="Solid_black.svg.png")
+    black.grid(column=0, row=0, sticky=tk.W, padx=5, pady=5)
