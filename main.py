@@ -1,34 +1,60 @@
 from tkinter import *
 import tkinter as tk
 from PIL import Image, ImageTk
-d = {}
-letters = ["a","b","c","d","e","f","g","h"]
-root = tk.Tk()
+# Dictionary to store the images for each chess piece
+img = {}
 
-photo = PhotoImage(file= "pieces/blackpawn.png")
-bpawn_img = photo.subsample(2,2)
-photo = PhotoImage(file= "pieces/whitepawn.png")
-wpawn_img = photo.subsample(2,2)
-photo = PhotoImage(file="pieces/blackrook.png")
-bturm_img = photo.subsample(2,2)
-photo = PhotoImage(file="pieces/whiterook.png")
-wturm_img = photo.subsample(2,2)
-photo = PhotoImage(file="pieces/blackknight.png")
-bknight_img = photo.subsample(2,2)
-photo = PhotoImage(file="pieces/whiteknight.png")
-wknight_img = photo.subsample(2,2)
-photo = PhotoImage(file="pieces/blackbishop.png")
-bbishop_img = photo.subsample(2,2)
-photo = PhotoImage(file="pieces/whitebishop.png")
-wbishop_img = photo.subsample(2,2)
-photo = PhotoImage(file="pieces/blackqueen.png")
-bqueen_img = photo.subsample(2,2)
-photo = PhotoImage(file="pieces/whitequeen.png")
-wqeen_img = photo.subsample(2,2)
-photo = PhotoImage(file="pieces/blackking.png")
-bking_img = photo.subsample(2,2)
-photo = PhotoImage(file="pieces/whiteking.png")
-wking_img = photo.subsample(2,2)
+# Letters to use for labeling the chess board
+letters = ["a", "b", "c", "d", "e", "f", "g", "h"]
+
+# Create the root window
+root = tk.Tk()
+board = tk.Frame(root, bg="white", width=800, height=800)
+root.geometry("800x800")
+root.wm_attributes("-transparentcolor")
+
+
+
+
+# Load the images for each chess piece and resize them
+photo = Image.open("pieces/blackpawn.png")
+bpawn_img = ImageTk.PhotoImage(photo.resize((40, 40)))
+photo = Image.open("pieces/whitepawn.png")
+wpawn_img = ImageTk.PhotoImage(photo.resize((40, 40)))
+photo = Image.open("pieces/blackrook.png")
+brook_img = ImageTk.PhotoImage(photo.resize((40, 40)))
+photo = Image.open("pieces/whiterook.png")
+wrook_img = ImageTk.PhotoImage(photo.resize((40, 40)))
+photo = Image.open("pieces/blackknight.png")
+bknight_img = ImageTk.PhotoImage(photo.resize((40, 40)))
+photo = Image.open("pieces/whiteknight.png")
+wknight_img = ImageTk.PhotoImage(photo.resize((40, 40)))
+photo = Image.open("pieces/blackbishop.png")
+bbishop_img = ImageTk.PhotoImage(photo.resize((40, 40)))
+photo = Image.open("pieces/whitebishop.png")
+wbishop_img = ImageTk.PhotoImage(photo.resize((40, 40)))
+photo = Image.open("pieces/blackqueen.png")
+bqueen_img = ImageTk.PhotoImage(photo.resize((40, 40)))
+photo = Image.open("pieces/whitequeen.png")
+wqeen_img = ImageTk.PhotoImage(photo.resize((40, 40)))
+photo = Image.open("pieces/blackking.png")
+bking_img = ImageTk.PhotoImage(photo.resize((40, 40)))
+photo = Image.open("pieces/whiteking.png")
+wking_img = ImageTk.PhotoImage(photo.resize((40, 40)))
+
+
+img["bp"] = bpawn_img
+img["wp"] = wpawn_img
+img["br"] = brook_img
+img["wr"] = wrook_img
+img["bkn"] = bknight_img
+img["wkn"] = wknight_img
+img["bb"] = bbishop_img
+img["wb"] = wbishop_img
+img["bq"] = bqueen_img
+img["wq"] = wqeen_img
+img["bk"] = bking_img
+img["wk"] = wking_img
 
 
 # Klassen (https://www.w3schools.com/python/python_classes.asp; https://www.w3schools.com/python/python_inheritance.asp)
@@ -49,14 +75,10 @@ class Bauer(Figur):
         self.umwandlung = False
         
         
-        match self.farbe, self.posY:
-            case "w",8:
-                self.umwandlung = True
-            case "b",1:
-                self.umwandlung = True
-            case _:
-                self.umwandlung = False
-
+        if self.farbe == "w" and self.posY == 7:
+            self.umwandlung = True
+        elif self.farbe == "b" and self.posY == 0:
+            self.umwandlung = True
     def bauer_startpos(self):
         self.bauer_startposX()
         self.bauer_startposY()
@@ -66,9 +88,9 @@ class Bauer(Figur):
         return self.posX
     def bauer_startposY(self):
         if self.farbe == "w":
-            self.posY = 2
+            self.posY = 1
         else:
-            self.posY = 7
+            self.posY = 6
         return self.posY
         
 class Springer(Figur):
@@ -78,13 +100,13 @@ class Springer(Figur):
     
     def springer_startpos(self, farbe, num):
         if num == 1:
-            self.posX = 2
+            self.posX = 1
         else:
-            self.posX = 7
+            self.posX = 6
         if farbe == "w":
-            self.posY = 1
+            self.posY = 0
         else:
-            self.posY = 8
+            self.posY = 7
         
 class Laeufer(Figur):
     def __init__(self, farbe, num):
@@ -93,13 +115,13 @@ class Laeufer(Figur):
         
     def laeufer_startpos(self, farbe, num):
         if num == 1:
-            self.posX = 3
+            self.posX = 2
         else:
-            self.posX = 6
+            self.posX = 5
         if farbe == "w":
-            self.posY = 1
+            self.posY = 0
         else:
-            self.posY = 8
+            self.posY = 7
         
 class Turm(Figur):
     def __init__(self, farbe, num):
@@ -108,13 +130,13 @@ class Turm(Figur):
         
     def turm_startpos(self, farbe, num):
         if num == 1:
-            self.posX = 1
+            self.posX = 0
         else:
-            self.posX = 8
+            self.posX = 7
         if farbe == "w":
-            self.posY = 1
+            self.posY = 0
         else:
-            self.posY = 8
+            self.posY = 7
         
 class Dame(Figur):
     def __init__(self, farbe):
@@ -122,11 +144,11 @@ class Dame(Figur):
         self.pos = [self.posX, self.posY]
         
     def dame_startpos(self, farbe):
-        self.posX = 4
+        self.posX = 3
         if farbe == "w":
-            self.posY = 1
+            self.posY = 0
         else:
-            self.posY = 8
+            self.posY = 7
             
 class Koenig(Figur):
     def __init__(self, farbe):
@@ -134,11 +156,11 @@ class Koenig(Figur):
         self.pos = [self.posX, self.posY]
         
     def koenig_startpos(self, farbe):
-        self.posX = 5
+        self.posX = 4
         if farbe == "w":
-            self.posY = 1
+            self.posY = 0
         else:
-            self.posY = 8
+            self.posY = 7
 
 
 
@@ -148,185 +170,129 @@ class Koenig(Figur):
 
 
 
+global chess_board
+chess_board = [[0 for i in range(8)] for j in range(8)]
 
-def buttoncheck():
-    print("bruh")
+global wking, wqueen, wrook, wbishop, wknight, wpawn, bking, bqueen, brook, bbishop, bknight, bpawn
+wking = "wkönig"
+wqueen = "wdame"
+wrook = "wturm"
+wbishop = "wläufer"
+wknight = "wspringer"
+wpawn = "wbauer"
 
-def createGrid(): 
+bking = "bkönig"
+bqueen = "bdame"
+brook = "bturm"
+bbishop = "bläufer"
+bknight = "bspringer"
+bpawn = "bbauer"
 
-    # A_Grid = (nur Wert für Button)
-    # mA.append(A_Grid[1])
-    # mA.append()
-    # Versuchen das mit dictionary zu machen (wert hinzufügen wie bei liste aber anders definieren)
+chess_board[0][0] = brook
+chess_board[0][1] = bknight
+chess_board[0][2] = bbishop
+chess_board[0][3] = bqueen
+chess_board[0][4] = bking
+chess_board[0][5] = bbishop
+chess_board[0][6] = bknight
+chess_board[0][7] = brook
+for i in range(8):
+    chess_board[1][i] = bpawn
+    chess_board[6][i] = wpawn
+chess_board[7][0] = wrook
+chess_board[7][1] = wknight
+chess_board[7][2] = wbishop
+chess_board[7][3] = wqueen
+chess_board[7][4] = wking
+chess_board[7][5] = wbishop
+chess_board[7][6] = wknight
+chess_board[7][7] = wrook
 
 
-    global A_grid, B_grid, C_grid, D_grid, E_grid, F_grid, G_grid, H_grid
-    A_grid, B_grid, C_grid, D_grid, E_grid, F_grid, G_grid, H_grid = [], [], [], [], [], [], [], []
+# position von figur herausfinden
+"""for i in range(8): 
+    for j in range(8):
+        if chess_board[j][i] == wrook:
+            print(i,j)"""
 
-    A_grid.append("")
-    B_grid.append("")
-    C_grid.append("")
-    D_grid.append("")
-    E_grid.append("")
-    F_grid.append("")
-    G_grid.append("")
-    H_grid.append("")
+def buttoncheck(event):
+    print("event:", event)
+    print("event.widget:", event.widget)
+
+def createGrid():
+
+    
+    # Visuelle darstellung des schachbretts
+    global frame_list
+    frame_list = [[None for i in range(8)] for j in range(8)]
+    for i in range(8):  # erstellt die felder als frames für das schachbrettmuster
+        for j in range(8):
+            # Set the background color based on the position
+            color = "white" if (i + j) % 2 == 0 else "gray"
+            frame = tk.Frame(bg=color, width=100, height=100)
+            frame.grid(row=i, column=j, sticky="nsew")
+            frame.bind("<Button-1>", buttoncheck)
+            frame_list[j][i] = frame # https://stackoverflow.com/questions/71576597/how-to-use-tkinter-config-on-a-grid-of-frames
+    
+    
+    
+def addImg(list, img):   # Fügt bilder als labels in die felder ein
     for i in range(8):
-        A_grid.append("" )
-        B_grid.append("")
-        C_grid.append("")
-        D_grid.append("")
-        E_grid.append("")
-        F_grid.append("")
-        G_grid.append("")
-        H_grid.append("")
-    
-    
-        
-    
-    for i in range(0,8): # Raster erstellen (https://www.pythontutorial.net/tkinter/tkinter-grid/)
-        root.columnconfigure(i,weight=1)
-        root.rowconfigure(i,weight=1)
-        
-        
-    for i in range(0,8): # Schachmuster erstellen
-        if i % 2 == 0:
-            for e in range(8,0,-2):
-                A_grid[e] = tk.Button(root, bg="gray", activebackground="gray", text=9-e, anchor=SW) 
-                B_grid[e] = tk.Button(root, bg="white", activebackground="white")
-                C_grid[e] = tk.Button(root, bg="gray", activebackground="gray") 
-                D_grid[e] = tk.Button(root, bg="white", activebackground="white")
-                E_grid[e] = tk.Button(root, bg="gray", activebackground="gray") 
-                F_grid[e] = tk.Button(root, bg="white", activebackground="white")
-                G_grid[e] = tk.Button(root, bg="gray", activebackground="gray") 
-                H_grid[e] = tk.Button(root, bg="white", activebackground="white")
-                
-                A_grid[e].grid(column=0, row=e-1, sticky=tk.NSEW)
-                B_grid[e].grid(column=1, row=e-1, sticky=tk.NSEW)
-                C_grid[e].grid(column=2, row=e-1, sticky=tk.NSEW)
-                D_grid[e].grid(column=3, row=e-1, sticky=tk.NSEW)
-                E_grid[e].grid(column=4, row=e-1, sticky=tk.NSEW)
-                F_grid[e].grid(column=5, row=e-1, sticky=tk.NSEW)
-                G_grid[e].grid(column=6, row=e-1, sticky=tk.NSEW)
-                H_grid[e].grid(column=7, row=e-1, sticky=tk.NSEW)
-        else:
-            for e in range(7,0,-2):
-                A_grid[e] = tk.Button(root, bg="white", activebackground="white", text=9-e, anchor=SW)
-                B_grid[e] = tk.Button(root, bg="gray", activebackground="gray") 
-                C_grid[e] = tk.Button(root, bg="white", activebackground="white")
-                D_grid[e] = tk.Button(root, bg="gray", activebackground="gray") 
-                E_grid[e] = tk.Button(root, bg="white", activebackground="white")
-                F_grid[e] = tk.Button(root, bg="gray", activebackground="gray") 
-                G_grid[e] = tk.Button(root, bg="white", activebackground="white")
-                H_grid[e] = tk.Button(root, bg="gray", activebackground="gray") 
-                
-                A_grid[e].grid(column=0, row=e-1, sticky=tk.NSEW)
-                B_grid[e].grid(column=1, row=e-1, sticky=tk.NSEW)
-                C_grid[e].grid(column=2, row=e-1, sticky=tk.NSEW)
-                D_grid[e].grid(column=3, row=e-1, sticky=tk.NSEW)
-                E_grid[e].grid(column=4, row=e-1, sticky=tk.NSEW)
-                F_grid[e].grid(column=5, row=e-1, sticky=tk.NSEW)
-                G_grid[e].grid(column=6, row=e-1, sticky=tk.NSEW)
-                H_grid[e].grid(column=7, row=e-1, sticky=tk.NSEW)
-    
-    A_grid[8].configure(text="1a", anchor=SW)
-    B_grid[8].configure(text="b", anchor=SW)
-    C_grid[8].configure(text="c", anchor=SW)
-    D_grid[8].configure(text="d", anchor=SW)
-    E_grid[8].configure(text="e", anchor=SW)
-    F_grid[8].configure(text="f", anchor=SW)
-    G_grid[8].configure(text="g", anchor=SW)
-    H_grid[8].configure(text="h", anchor=SW)
-    
-    global mA, mB, mC, mD, mE, mF, mG, mH
-    mA, mB, mC, mD, mE, mF, mG, mH = [], [], [], [], [], [], [], []
-
-    mA.append("")
-    mB.append("")
-    mC.append("")
-    mD.append("")
-    mE.append("")
-    mF.append("")
-    mG.append("")
-    mH.append("")
-    for i in range(1,9):
-        mA.append([A_grid[i]])
-        mB.append([B_grid[i]])
-        mC.append([C_grid[i]])
-        mD.append([D_grid[i]])
-        mE.append([E_grid[i]])
-        mF.append([F_grid[i]])
-        mG.append([G_grid[i]])
-        mH.append([H_grid[i]])
-    
-    for i in range(1,9):
-        mA[i].append([1,i])
-        mB[i].append([2,i])
-        mC[i].append([3,i])
-        mD[i].append([4,i])
-        mE[i].append([5,i])
-        mF[i].append([6,i])
-        mG[i].append([7,i])
-        mH[i].append([8,i])
-        
-
-def startfiguren():
-    A_grid[7].configure(image=wpawn_img, anchor=CENTER)
-    B_grid[7].configure(image=wpawn_img, anchor=CENTER)
-    C_grid[7].configure(image=wpawn_img, anchor=CENTER)
-    D_grid[7].configure(image=wpawn_img, anchor=CENTER)
-    E_grid[7].configure(image=wpawn_img, anchor=CENTER)
-    F_grid[7].configure(image=wpawn_img, anchor=CENTER)
-    G_grid[7].configure(image=wpawn_img, anchor=CENTER)
-    H_grid[7].configure(image=wpawn_img, anchor=CENTER)
-    
-    A_grid[8].configure(image=wturm_img, anchor=CENTER)
-    B_grid[8].configure(image=wknight_img, anchor=CENTER)
-    C_grid[8].configure(image=wbishop_img, anchor=CENTER)
-    D_grid[8].configure(image=wqeen_img, anchor=CENTER)
-    E_grid[8].configure(image=wking_img, anchor=CENTER)
-    F_grid[8].configure(image=wbishop_img, anchor=CENTER)
-    G_grid[8].configure(image=wknight_img, anchor=CENTER)
-    H_grid[8].configure(image=wturm_img, anchor=CENTER)
-    
-    A_grid[2].configure(image=bpawn_img, anchor=CENTER)
-    B_grid[2].configure(image=bpawn_img, anchor=CENTER)
-    C_grid[2].configure(image=bpawn_img, anchor=CENTER)
-    D_grid[2].configure(image=bpawn_img, anchor=CENTER)
-    E_grid[2].configure(image=bpawn_img, anchor=CENTER)
-    F_grid[2].configure(image=bpawn_img, anchor=CENTER)
-    G_grid[2].configure(image=bpawn_img, anchor=CENTER)
-    H_grid[2].configure(image=bpawn_img, anchor=CENTER)
-    
-    A_grid[1].configure(image=bturm_img, anchor=CENTER)
-    B_grid[1].configure(image=bknight_img, anchor=CENTER)
-    C_grid[1].configure(image=bbishop_img, anchor=CENTER)
-    D_grid[1].configure(image=bqueen_img, anchor=CENTER)
-    E_grid[1].configure(image=bking_img, anchor=CENTER)
-    F_grid[1].configure(image=bbishop_img, anchor=CENTER)
-    G_grid[1].configure(image=bknight_img, anchor=CENTER)
-    H_grid[1].configure(image=bturm_img, anchor=CENTER)
-    
+        for j in range(8):
+            if frame_list[j][i] == list:
+                piece = Label(frame_list[j][i], image=img, background=frame_list[j][i]["background"], width=90, height=96)
+                piece.pack(expand=TRUE)
+                piece.bind("<Button-1>", buttoncheck)
 
     
     
+    
+def startaufstellung():
+        for i in range(8):
+            for j in range(8):
+                match chess_board[i][j]:
+                    case "bbauer":
+                        addImg(frame_list[j][i], img["bp"])
+                    case "wbauer":
+                        addImg(frame_list[j][i], img["wp"])
+                    case "wturm":
+                        addImg(frame_list[j][i], img["wr"])
+                    case "bturm":
+                        addImg(frame_list[j][i], img["br"])
+                    case "wspringer":
+                        addImg(frame_list[j][i], img["wkn"])
+                    case "bspringer":
+                        addImg(frame_list[j][i], img["bkn"])
+                    case "wläufer":
+                        addImg(frame_list[j][i], img["wb"])
+                    case "bläufer":
+                        addImg(frame_list[j][i], img["bb"])
+                    case "wkönig":
+                        addImg(frame_list[j][i], img["wk"])
+                    case "bkönig":
+                        addImg(frame_list[j][i], img["bk"])
+                    case "wdame":
+                        addImg(frame_list[j][i], img["wq"])
+                    case "bdame":
+                        addImg(frame_list[j][i], img["bq"])
 
 def createWin(): # Fenster erstellen (https://www.pythonguis.com/tutorials/create-gui-tkinter/)
     root.title("Schach")
-    root.configure(background="white")
-    root.minsize(500,500)
-    root.maxsize(1000,750)
-    root.geometry("600x600+50+50")
+    
     createGrid()
     
-    startfiguren()
     """bruh = Label(image=bpawn)
         bruh.grid(row=1,column=1)"""
     """gray1.configure(image=bpawn)
     
         gray1.bind("<Button-1>", lambda e: buttoncheck())"""
-    print(mH[7][1])
-    root.mainloop()
     
+    
+    
+    
+    startaufstellung()
+    
+    root.mainloop()
+# kein bock mehr auf das grid mit knöpfen oder anderen scheiß, 
 
 createWin()
