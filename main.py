@@ -70,7 +70,8 @@ class Bauer(Figur):
         super().__init__(farbe)
 
         self.pos = [self.posX, self.posY]
-        
+        self.new_pos = [None, None]
+
         # Umwandlung zu anderen Figuren sobald Bauer die andere Spielseite erreicht (funktioniert nicht)
         self.umwandlung = False
         
@@ -92,11 +93,28 @@ class Bauer(Figur):
         else:
             self.posY = 6
         return self.posY
-        
+
+    def bauer_pos_moves(self):
+        #beim ersten zug 1 oder 2 nach vorne, dann nur 1
+        #wenn figur diagonal [pos[0] + 1, pos[1] + 1] steht
+        #wenn bauer 2 nach vorne geht (en passant)
+
+        if self.farbe == "w" and self.pos[i] == 6:
+            self.new_pos[0] = self.pos[0]
+            self.new_pos[1] = [5, 4]
+
+        elif self.farbe == "b" and self.pos[i] == 1:
+            self.new_pos[0] = self.pos[0]
+            self.new_pos[1] = [2, 3]
+
+        else:
+            self.new_pos[0] = self.pos[0]
+            self.new_pos[1] = self.pos[1] + 1
 class Springer(Figur):
     def __init__(self, farbe, num):
         super().__init__(farbe)
         self.pos = [self.posX, self.posY]
+        self.new_pos = [None, None]
     
     def springer_startpos(self, farbe, num):
         if num == 1:
@@ -107,7 +125,13 @@ class Springer(Figur):
             self.posY = 0
         else:
             self.posY = 7
-        
+
+    def springer_pos_moves(self):
+        # kann nur 2 nach vorne und 1 zur seite
+        # wenn nach vorne: [pos[0] + 1 oder -1, pos[1] + 2 oder -2
+        # wenn zur seite: [pos[0] + 2 oder -2, pos[1] + 1 oder -2
+
+
 class Laeufer(Figur):
     def __init__(self, farbe, num):
         super().__init__(farbe)
@@ -122,7 +146,9 @@ class Laeufer(Figur):
             self.posY = 0
         else:
             self.posY = 7
-        
+
+    def laeufer_pos_moves(self):
+        # diagonal, also new_pos[pos[0]+ i in range(bis zum ende des bretts)], pos[1] + i in range(bis zum ende des bretts)]
 class Turm(Figur):
     def __init__(self, farbe, num):
         super().__init__(farbe)
@@ -137,6 +163,12 @@ class Turm(Figur):
             self.posY = 0
         else:
             self.posY = 7
+
+    def turm_pos_moves(self):
+        # nur seitlich oder vertikal
+        # seitlich: [pos[0] +/- i in range(bis zum ende des brett], pos[1]]
+        # vertikal: [pos[0], pos[1] +/- i in range(bis zum ende des brett]
+        # castling beachten
         
 class Dame(Figur):
     def __init__(self, farbe):
@@ -149,7 +181,14 @@ class Dame(Figur):
             self.posY = 0
         else:
             self.posY = 7
-            
+
+    def dame_pos_moves(self):
+        # seitlich, vertikal, diagonal
+        # seitlich: [pos[0] +/- i in range(bis zum ende des brett], pos[1]]
+        # vertikal: [pos[0], pos[1] +/- i in range(bis zum ende des brett]
+        # diagonal, also new_pos[pos[0]+ i in range(bis zum ende des bretts)], pos[1] + i in range(bis zum ende des bretts)]
+
+
 class Koenig(Figur):
     def __init__(self, farbe):
         super().__init__(farbe)
@@ -162,13 +201,9 @@ class Koenig(Figur):
         else:
             self.posY = 7
 
-
-
-
-
-
-
-
+    def koenig_pos_moves(self):
+        # 1 seitlich und diagonal
+        # [pos[0] +/- 1, pos[1] +/- 1
 
 global chess_board
 chess_board = [[0 for i in range(8)] for j in range(8)]
@@ -247,7 +282,7 @@ def addImg(list, img):   # Fügt bilder als labels in die felder ein
     
     
     
-def startaufstellung():
+"""def startaufstellung():
         for i in range(8):
             for j in range(8):
                 match chess_board[i][j]:
@@ -274,7 +309,7 @@ def startaufstellung():
                     case "wdame":
                         addImg(frame_list[j][i], img["wq"])
                     case "bdame":
-                        addImg(frame_list[j][i], img["bq"])
+                        addImg(frame_list[j][i], img["bq"])"""
 
 def createWin(): # Fenster erstellen (https://www.pythonguis.com/tutorials/create-gui-tkinter/)
     root.title("Schach")
@@ -288,9 +323,9 @@ def createWin(): # Fenster erstellen (https://www.pythonguis.com/tutorials/creat
         gray1.bind("<Button-1>", lambda e: buttoncheck())"""
     
     
+
     
-    
-    startaufstellung()
+    #startaufstellung()
     
     root.mainloop()
 # kein bock mehr auf das grid mit knöpfen oder anderen scheiß, 
