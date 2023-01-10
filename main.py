@@ -61,55 +61,56 @@ img["wk"] = wking_img
 class Figur:
     def __init__(self, farbe):
         self.farbe = farbe
-        self.posX = 0
-        self.posY = 0
         
 class Bauer(Figur):
     def __init__(self, farbe, num):
         self.num = num
         super().__init__(farbe)
-
-        self.pos = [self.posX, self.posY]
-        self.new_pos = [None, None]
+        
+        start = True
+        if start == True:
+            self.pos = [None,None]
+            self.new_pos = [None, None]
+            #startpositionen
+            if self.farbe == "w":
+                self.pos[1] = 6
+            else:
+                self.pos[1] = 1
+            self.pos[0] = self.num -1
+            start = False
+        
+        
 
         # Umwandlung zu anderen Figuren sobald Bauer die andere Spielseite erreicht (funktioniert nicht)
         self.umwandlung = False
         
         
-        if self.farbe == "w" and self.posY == 7:
+        """if self.farbe == "w" and self.posY == 7:
             self.umwandlung = True
         elif self.farbe == "b" and self.posY == 0:
-            self.umwandlung = True
-    def bauer_startpos(self):
-        self.bauer_startposX()
-        self.bauer_startposY()
-    def bauer_startposX(self):
-        # Startpositionen der verschiedenen Bauern 
-        self.posX = self.num
-        return self.posX
-    def bauer_startposY(self):
-        if self.farbe == "w":
-            self.posY = 1
-        else:
-            self.posY = 6
-        return self.posY
+            self.umwandlung = True"""
+    
+    
 
     def bauer_pos_moves(self):
         #beim ersten zug 1 oder 2 nach vorne, dann nur 1
         #wenn figur diagonal [pos[0] + 1, pos[1] + 1] steht
         #wenn bauer 2 nach vorne geht (en passant)
 
-        if self.farbe == "w" and self.pos[i] == 6:
+        if self.farbe == "w" and self.pos[1] == 6:
             self.new_pos[0] = self.pos[0]
             self.new_pos[1] = [5, 4]
 
-        elif self.farbe == "b" and self.pos[i] == 1:
+        elif self.farbe == "b" and self.pos[1] == 1:
             self.new_pos[0] = self.pos[0]
             self.new_pos[1] = [2, 3]
 
         else:
             self.new_pos[0] = self.pos[0]
             self.new_pos[1] = self.pos[1] + 1
+            
+            
+            
 class Springer(Figur):
     def __init__(self, farbe, num):
         super().__init__(farbe)
@@ -130,6 +131,9 @@ class Springer(Figur):
         # kann nur 2 nach vorne und 1 zur seite
         # wenn nach vorne: [pos[0] + 1 oder -1, pos[1] + 2 oder -2
         # wenn zur seite: [pos[0] + 2 oder -2, pos[1] + 1 oder -2
+        self.new_pos[0], self.new_pos[1] = [self.pos[0]+1, self.pos[1]+2], [self.pos[0]-1, self.pos[1]+2]
+        
+        
 
 
 class Laeufer(Figur):
@@ -149,6 +153,8 @@ class Laeufer(Figur):
 
     def laeufer_pos_moves(self):
         # diagonal, also new_pos[pos[0]+ i in range(bis zum ende des bretts)], pos[1] + i in range(bis zum ende des bretts)]
+        pass
+        
 class Turm(Figur):
     def __init__(self, farbe, num):
         super().__init__(farbe)
@@ -169,31 +175,34 @@ class Turm(Figur):
         # seitlich: [pos[0] +/- i in range(bis zum ende des brett], pos[1]]
         # vertikal: [pos[0], pos[1] +/- i in range(bis zum ende des brett]
         # castling beachten
+        pass
         
 class Dame(Figur):
     def __init__(self, farbe):
         super().__init__(farbe)
-        self.pos = [self.posX, self.posY]
+        """self.pos = [self.posX, self.posY]
         
     def dame_startpos(self, farbe):
         self.posX = 3
         if farbe == "w":
             self.posY = 0
         else:
-            self.posY = 7
+            self.posY = 7"""
 
     def dame_pos_moves(self):
         # seitlich, vertikal, diagonal
         # seitlich: [pos[0] +/- i in range(bis zum ende des brett], pos[1]]
         # vertikal: [pos[0], pos[1] +/- i in range(bis zum ende des brett]
         # diagonal, also new_pos[pos[0]+ i in range(bis zum ende des bretts)], pos[1] + i in range(bis zum ende des bretts)]
-
+        pass
 
 class Koenig(Figur):
     def __init__(self, farbe):
         super().__init__(farbe)
-        self.pos = [self.posX, self.posY]
         
+        self.posX = 0
+        self.posY = 0
+        self.pos = [self.posX, self.posY]
     def koenig_startpos(self, farbe):
         self.posX = 4
         if farbe == "w":
@@ -204,12 +213,28 @@ class Koenig(Figur):
     def koenig_pos_moves(self):
         # 1 seitlich und diagonal
         # [pos[0] +/- 1, pos[1] +/- 1
+        pass
 
 global chess_board
 chess_board = [[0 for i in range(8)] for j in range(8)]
 
 global wking, wqueen, wrook, wbishop, wknight, wpawn, bking, bqueen, brook, bbishop, bknight, bpawn
-wking = "wkönig"
+
+color = {0: "w", 1: "b"}
+
+
+for i in range(1):
+    king = {
+        "name": color[i]+ "könig",
+        "figur": Koenig(color[i])
+}
+    dame = {
+        "name":color[i] + "dame",
+        "figur": Dame(color[i])
+    }
+
+
+
 wqueen = "wdame"
 wrook = "wturm"
 wbishop = "wläufer"
@@ -238,10 +263,11 @@ chess_board[7][0] = wrook
 chess_board[7][1] = wknight
 chess_board[7][2] = wbishop
 chess_board[7][3] = wqueen
-chess_board[7][4] = wking
+chess_board[7][4] = king["name"]
 chess_board[7][5] = wbishop
 chess_board[7][6] = wknight
 chess_board[7][7] = wrook
+print(chess_board)
 
 
 # position von figur herausfinden
@@ -253,6 +279,16 @@ chess_board[7][7] = wrook
 def buttoncheck(event):
     print("event:", event)
     print("event.widget:", event.widget)
+    
+    # Row und column werte bekommen
+    row = event.widget.grid_info()["row"]
+    column = event.widget.grid_info()["column"]
+    print(row, column)
+    
+    
+
+    
+    
 
 def createGrid():
 
@@ -278,11 +314,12 @@ def addImg(list, img):   # Fügt bilder als labels in die felder ein
                 piece = Label(frame_list[j][i], image=img, background=frame_list[j][i]["background"], width=90, height=96)
                 piece.pack(expand=TRUE)
                 piece.bind("<Button-1>", buttoncheck)
+                
 
     
     
     
-"""def startaufstellung():
+def startaufstellung():
         for i in range(8):
             for j in range(8):
                 match chess_board[i][j]:
@@ -309,25 +346,23 @@ def addImg(list, img):   # Fügt bilder als labels in die felder ein
                     case "wdame":
                         addImg(frame_list[j][i], img["wq"])
                     case "bdame":
-                        addImg(frame_list[j][i], img["bq"])"""
+                        addImg(frame_list[j][i], img["bq"])
 
 def createWin(): # Fenster erstellen (https://www.pythonguis.com/tutorials/create-gui-tkinter/)
     root.title("Schach")
     
     createGrid()
     
-    """bruh = Label(image=bpawn)
-        bruh.grid(row=1,column=1)"""
-    """gray1.configure(image=bpawn)
     
-        gray1.bind("<Button-1>", lambda e: buttoncheck())"""
+    x = Bauer("w",1)
+    x.pos = [5,4]
+    x.bauer_pos_moves()
+    addImg(frame_list[x.new_pos[0]][x.new_pos[1]], img["bp"])
+    print(x.new_pos)
     
-    
-
-    
-    #startaufstellung()
+    startaufstellung()
     
     root.mainloop()
-# kein bock mehr auf das grid mit knöpfen oder anderen scheiß, 
+
 
 createWin()
