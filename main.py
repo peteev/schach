@@ -180,6 +180,10 @@ class Turm(Figur):
 class Dame(Figur):
     def __init__(self, farbe):
         super().__init__(farbe)
+        if self.farbe == "w":
+            self.pos = [2,3]
+        else:
+            self.pos = [5,8]
         """self.pos = [self.posX, self.posY]
         
     def dame_startpos(self, farbe):
@@ -395,6 +399,8 @@ def createWin(): # Fenster erstellen (https://www.pythonguis.com/tutorials/creat
     
     createGrid()
 
+    print(dame["figurb"].pos)
+    print(dame["figurw"].pos)
     
     """x = Bauer("w",1)
     x.pos = [5,4]
