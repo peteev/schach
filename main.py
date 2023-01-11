@@ -1,13 +1,13 @@
 from tkinter import *
 import tkinter as tk
 from PIL import Image, ImageTk
-# Dictionary to store the images for each chess piece
+
 img = {}
 
-# Letters to use for labeling the chess board
+
 letters = ["a", "b", "c", "d", "e", "f", "g", "h"]
 
-# Create the root window
+
 root = tk.Tk()
 board = tk.Frame(root, bg="white", width=800, height=800)
 root.geometry("800x800")
@@ -16,7 +16,7 @@ root.wm_attributes("-transparentcolor")
 
 
 
-# Load the images for each chess piece and resize them
+# Bilder von Schachfiguren öffnen und laden
 photo = Image.open("pieces/blackpawn.png")
 bpawn_img = ImageTk.PhotoImage(photo.resize((40, 40)))
 photo = Image.open("pieces/whitepawn.png")
@@ -223,14 +223,18 @@ global wking, wqueen, wrook, wbishop, wknight, wpawn, bking, bqueen, brook, bbis
 color = {0: "w", 1: "b"}
 
 
-for i in range(1):
-    king = {
-        "name": color[i]+ "könig",
-        "figur": Koenig(color[i])
+
+king = {
+        "namew": "wkönig",
+        "nameb": "bkönig",
+        "figurw": Koenig("w"),
+        "figurb": Koenig("b")
 }
-    dame = {
-        "name":color[i] + "dame",
-        "figur": Dame(color[i])
+dame = {
+        "namew": "wdame",
+        "nameb": "bdame",
+        "figurw": Dame("w"),
+        "figurb": Dame("b")
     }
 
 
@@ -263,7 +267,7 @@ chess_board[7][0] = wrook
 chess_board[7][1] = wknight
 chess_board[7][2] = wbishop
 chess_board[7][3] = wqueen
-chess_board[7][4] = king["name"]
+chess_board[7][4] = king["namew"]
 chess_board[7][5] = wbishop
 chess_board[7][6] = wknight
 chess_board[7][7] = wrook
@@ -276,18 +280,25 @@ print(chess_board)
         if chess_board[j][i] == wrook:
             print(i,j)"""
 
-def buttoncheck(event):
-    print("event:", event)
-    print("event.widget:", event.widget)
-    
+
+def framecheck(event):
     # Row und column werte bekommen
     row = event.widget.grid_info()["row"]
     column = event.widget.grid_info()["column"]
     print(row, column)
-    
-    
+    # if row == new_moves[0]:
+    addImg(frame_list[column][row], img["bp"])
 
-    
+def labelcheck(event):
+    # Row und column werte bekommen
+    row = event.widget.master.grid_info()["row"]
+    column = event.widget.master.grid_info()["column"]
+    print(row, column)
+    #if moved == True:
+    #devent.widget.destroy() #https://stackoverflow.com/questions/52059974/how-to-delete-or-destroy-label-in-tkinter
+
+
+
     
 
 def createGrid():
@@ -302,10 +313,11 @@ def createGrid():
             color = "white" if (i + j) % 2 == 0 else "gray"
             frame = tk.Frame(bg=color, width=100, height=100)
             frame.grid(row=i, column=j, sticky="nsew")
-            frame.bind("<Button-1>", buttoncheck)
+            frame.bind("<Button-1>", framecheck)
             frame_list[j][i] = frame # https://stackoverflow.com/questions/71576597/how-to-use-tkinter-config-on-a-grid-of-frames
-    
-    
+
+
+
     
 def addImg(list, img):   # Fügt bilder als labels in die felder ein
     for i in range(8):
@@ -313,14 +325,14 @@ def addImg(list, img):   # Fügt bilder als labels in die felder ein
             if frame_list[j][i] == list:
                 piece = Label(frame_list[j][i], image=img, background=frame_list[j][i]["background"], width=90, height=96)
                 piece.pack(expand=TRUE)
-                piece.bind("<Button-1>", buttoncheck)
+                piece.bind("<Button-1>", labelcheck)
                 
+
 
     
     
-    
 def startaufstellung():
-        for i in range(8):
+        """for i in range(8): #für neuste python version
             for j in range(8):
                 match chess_board[i][j]:
                     case "bbauer":
@@ -346,20 +358,49 @@ def startaufstellung():
                     case "wdame":
                         addImg(frame_list[j][i], img["wq"])
                     case "bdame":
-                        addImg(frame_list[j][i], img["bq"])
+                        addImg(frame_list[j][i], img["bq"])"""
+        #für schulpc (match case funtkioniert nur bei python 3.11)
+        for i in range(8):
+            for j in range(8):
+                if chess_board[i][j] == "bbauer":
+                    addImg(frame_list[j][i], img["bp"])
+                elif chess_board[i][j] == "wbauer":
+                    addImg(frame_list[j][i], img["wp"])
+                elif chess_board[i][j] == "wturm":
+                    addImg(frame_list[j][i], img["wr"])
+                elif chess_board[i][j] == "bturm":
+                    addImg(frame_list[j][i], img["br"])
+                elif chess_board[i][j] == "wspringer":
+                    addImg(frame_list[j][i], img["wkn"])
+                elif chess_board[i][j] == "bspringer":
+                    addImg(frame_list[j][i], img["bkn"])
+                elif chess_board[i][j] == "wläufer":
+                    addImg(frame_list[j][i], img["bb"])
+                elif chess_board[i][j] == "bläufer":
+                    addImg(frame_list[j][i], img["bb"])
+                elif chess_board[i][j] == "wkönig":
+                    addImg(frame_list[j][i], img["wk"])
+                elif chess_board[i][j] == "bkönig":
+                    addImg(frame_list[j][i], img["bk"])
+                elif chess_board[i][j] == "wdame":
+                    addImg(frame_list[j][i], img["wq"])
+                elif chess_board[i][j] == "bdame":
+                    addImg(frame_list[j][i], img["bq"])
+                else:
+                    pass
+
 
 def createWin(): # Fenster erstellen (https://www.pythonguis.com/tutorials/create-gui-tkinter/)
     root.title("Schach")
     
     createGrid()
+
     
-    
-    x = Bauer("w",1)
+    """x = Bauer("w",1)
     x.pos = [5,4]
     x.bauer_pos_moves()
     addImg(frame_list[x.new_pos[0]][x.new_pos[1]], img["bp"])
-    print(x.new_pos)
-    
+    print(x.new_pos)"""
     startaufstellung()
     
     root.mainloop()
