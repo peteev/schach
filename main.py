@@ -139,17 +139,17 @@ class Springer(Figur):
 class Laeufer(Figur):
     def __init__(self, farbe, num):
         super().__init__(farbe)
-        self.pos = [self.posX, self.posY]
+        self.num = num
         
-    def laeufer_startpos(self, farbe, num):
-        if num == 1:
-            self.posX = 2
+
+        if self.num == 1 and self.farbe == "w":
+            self.pos = [7,2]
+        elif self.num == 2 and self.farbe == "w":
+            self.pos = [7,5]
+        elif self.num == 1 and self.farbe == "b":
+            self.pos = [0,2]
         else:
-            self.posX = 5
-        if farbe == "w":
-            self.posY = 0
-        else:
-            self.posY = 7
+            self.pos = [0,5]
 
     def laeufer_pos_moves(self):
         # diagonal, also new_pos[pos[0]+ i in range(bis zum ende des bretts)], pos[1] + i in range(bis zum ende des bretts)]
@@ -158,17 +158,17 @@ class Laeufer(Figur):
 class Turm(Figur):
     def __init__(self, farbe, num):
         super().__init__(farbe)
-        self.pos = [self.posX, self.posY]
-        
-    def turm_startpos(self, farbe, num):
-        if num == 1:
-            self.posX = 0
+
+        self.num = num
+
+        if self.num == 1 and self.farbe == "w":
+            self.pos = [7,0]
+        elif self.num == 2 and self.farbe == "w":
+            self.pos = [7,7]
+        elif self.num == 1 and farbe == "b":
+            self.pos = [0,0]
         else:
-            self.posX = 7
-        if farbe == "w":
-            self.posY = 0
-        else:
-            self.posY = 7
+            self.pos = [0,7]
 
     def turm_pos_moves(self):
         # nur seitlich oder vertikal
@@ -234,14 +234,48 @@ king = {
         "figurw": Koenig("w"),
         "figurb": Koenig("b")
 }
-dame = {
+queen = {
         "namew": "wdame",
         "nameb": "bdame",
         "figurw": Dame("w"),
         "figurb": Dame("b")
     }
 
+rook = {
+        "namew": "wturm",
+        "nameb": "bturm",
+        "figurw1": Turm("w",1),
+        "figurw2": Turm("w",2),
+        "figurb1": Turm("b",1),
+        "figurb2": Turm("b",2),
+}
 
+bishop = {
+        "namew": "wläufer",
+        "nameb": "bläufer",
+        "figurw1": Laeufer("w",1),
+        "figurw2": Laeufer("w",2),
+        "figurb1": Laeufer("b",1),
+        "figurb2": Laeufer("b",2)
+}
+
+knight = {
+        "namew": "wspringer",
+        "nameb": "bspringer",
+        "figurw1": Springer("w",1),
+        "figurw2": Springer("w",2),
+        "figurb1": Springer("b",1),
+        "figurb2": Springer("b",2)
+}
+
+pawn = {
+        "namew": "wbauer",
+        "nameb": "bbauer",
+        "figurw1": Bauer("w",1),
+        "figurw2": Bauer("w",2),
+        "figurw3": Bauer("w",3),
+        "figurw4": Bauer("w",4)
+}
 
 wqueen = "wdame"
 wrook = "wturm"
@@ -259,8 +293,8 @@ bpawn = "bbauer"
 chess_board[0][0] = brook
 chess_board[0][1] = bknight
 chess_board[0][2] = bbishop
-chess_board[0][3] = bqueen
-chess_board[0][4] = bking
+chess_board[0][3] = queen["nameb"]
+chess_board[0][4] = king["nameb"]
 chess_board[0][5] = bbishop
 chess_board[0][6] = bknight
 chess_board[0][7] = brook
@@ -269,10 +303,10 @@ for i in range(8):
     chess_board[6][i] = wpawn
 chess_board[7][0] = wrook
 chess_board[7][1] = wknight
-chess_board[7][2] = wbishop
+chess_board[7][2] = bishop["namew"]
 chess_board[7][3] = wqueen
 chess_board[7][4] = king["namew"]
-chess_board[7][5] = wbishop
+chess_board[7][5] = bishop["namew"]
 chess_board[7][6] = wknight
 chess_board[7][7] = wrook
 print(chess_board)
@@ -299,7 +333,7 @@ def labelcheck(event):
     column = event.widget.master.grid_info()["column"]
     print(row, column)
     #if moved == True:
-    #devent.widget.destroy() #https://stackoverflow.com/questions/52059974/how-to-delete-or-destroy-label-in-tkinter
+    event.widget.destroy() #https://stackoverflow.com/questions/52059974/how-to-delete-or-destroy-label-in-tkinter
 
 
 
@@ -379,7 +413,7 @@ def startaufstellung():
                 elif chess_board[i][j] == "bspringer":
                     addImg(frame_list[j][i], img["bkn"])
                 elif chess_board[i][j] == "wläufer":
-                    addImg(frame_list[j][i], img["bb"])
+                    addImg(frame_list[j][i], img["wb"])
                 elif chess_board[i][j] == "bläufer":
                     addImg(frame_list[j][i], img["bb"])
                 elif chess_board[i][j] == "wkönig":
@@ -399,8 +433,6 @@ def createWin(): # Fenster erstellen (https://www.pythonguis.com/tutorials/creat
     
     createGrid()
 
-    print(dame["figurb"].pos)
-    print(dame["figurw"].pos)
     
     """x = Bauer("w",1)
     x.pos = [5,4]
@@ -408,7 +440,7 @@ def createWin(): # Fenster erstellen (https://www.pythonguis.com/tutorials/creat
     addImg(frame_list[x.new_pos[0]][x.new_pos[1]], img["bp"])
     print(x.new_pos)"""
     startaufstellung()
-    
+    print(bishop["figurb1"].pos)
     root.mainloop()
 
 
