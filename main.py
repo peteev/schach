@@ -65,7 +65,7 @@ class Figur:
 class Bauer(Figur):
     def __init__(self, farbe, num):
         self.num = num
-        
+        self.new_pos = [None, None]
         super().__init__(farbe)
         if self.farbe == "w":
             self.pos = [6,self.num-1]
@@ -73,18 +73,6 @@ class Bauer(Figur):
             self.pos = [1,self.num-1]
         
         
-        
-        """start = True
-        if start == True:
-            self.pos = [None,None]
-            self.new_pos = [None, None]
-            #startpositionen
-            if self.farbe == "w":
-                self.pos[1] = 6
-            else:
-                self.pos[1] = 1
-            self.pos[0] = self.num -1
-            start = False"""
         
         
 
@@ -103,17 +91,23 @@ class Bauer(Figur):
         #beim ersten zug 1 oder 2 nach vorne, dann nur 1
         #wenn figur diagonal [pos[0] + 1, pos[1] + 1] steht
         #wenn bauer 2 nach vorne geht (en passant)
-        self.new_pos = [None, None]
+        
         if self.farbe == "w" and self.pos[0] == 6:
             self.new_pos[0] = [5,4]
             self.new_pos[1] = [self.pos[1]]
 
         elif self.farbe == "b" and self.pos[0] == 1:
-            self.new_pos = [[2,3][self.pos[1]]]
+            self.new_pos[0] = [2,3]
+            self.new_pos[1] = [self.pos[1]]
 
-        else:
-            self.pos = [self.pos[0]+1,self.pos[1]]
+        elif self.farbe == "w" and self.pos[0] != 6:
+            self.new_pos[0] = [self.pos[0]-1]
+            
+            self.new_pos[1] = [self.pos[1]]
         
+        elif self.farbe == "b" and self.pos[0] != 1:
+            self.new_pos[0] = [self.pos[0]+1]
+            self.new_pos[1] = [self.pos[1]]
             
             
 class Springer(Figur):
@@ -135,7 +129,8 @@ class Springer(Figur):
         # kann nur 2 nach vorne und 1 zur seite
         # wenn nach vorne: [pos[0] + 1 oder -1, pos[1] + 2 oder -2
         # wenn zur seite: [pos[0] + 2 oder -2, pos[1] + 1 oder -2
-        self.new_pos[0], self.new_pos[1] = [self.pos[0]+1, self.pos[1]+2], [self.pos[0]-1, self.pos[1]+2]
+        pass
+            
         
         
 
@@ -364,6 +359,7 @@ def labelcheck(event):
     piecerow = event.widget.master.grid_info()["row"]
     global piececolumn
     piececolumn = event.widget.master.grid_info()["column"]
+    piece_board[piecerow][piececolumn].pos_moves()
     
         
     
@@ -376,17 +372,19 @@ def framecheck(event):
     column = event.widget.grid_info()["column"]
 
     # if row == new_moves[0]:
-    piece_board[piecerow][piececolumn].pos_moves()
-    pawn["figurw1"].pos_moves()
-    print(pawn["figurw1"].new_pos)
-    print(row, column)
+    
     if piececlick:
-        chess_board[row][column] = chess_board[piecerow][piececolumn]
-        piece_board[row][column] = piece_board[piecerow][piececolumn]
-        piece_board[piecerow][piececolumn].pos = [row, column]
-        print(piece_board[piecerow][piececolumn].pos)
-        print(piece_board[piecerow][piececolumn])
-        chess_board[piecerow][piececolumn] = 0
+        
+        for i in range(len(piece_board[piecerow][piececolumn].new_pos[0])):
+            for j in range(len(piece_board[piecerow][piececolumn].new_pos[1])):
+                if row == piece_board[piecerow][piececolumn].new_pos[0][i] and column == piece_board[piecerow][piececolumn].new_pos[1][j]:
+                    chess_board[row][column] = chess_board[piecerow][piececolumn]
+                    piece_board[row][column] = piece_board[piecerow][piececolumn]
+                    piece_board[piecerow][piececolumn].pos = [row, column]
+                    chess_board[piecerow][piececolumn] = 0
+                elif row != piece_board[piecerow][piececolumn].new_pos[0][i] and column != piece_board[piecerow][piececolumn].new_pos[1][j]:
+                    print("ERROR: Inkorrekter Spielzug")
+        
         
     piececlick = False
     del_pieces()
@@ -516,17 +514,9 @@ def createWin(): # Fenster erstellen (https://www.pythonguis.com/tutorials/creat
     root.title("Schach")
     
     createGrid()
-
-    """pawn["figurw1"].pos_moves()
-    pawn["figurw1"].pos = [5,0]
+    startaufstellung()
     
-    for i in range(len(pawn["figurw1"].new_pos[0])):
-        for j in range(len(pawn["figurw1"].new_pos[1])):
-            if pawn["figurw1"].new_pos[0][i] == pawn["figurw1"].pos[0] and pawn["figurw1"].new_pos[1][j] == pawn["figurw1"].pos[1]:
-                print("JAMANN")
-            print(pawn["figurw1"].new_pos[i])
-            print(pawn["figurw1"].new_pos[j])
-    startaufstellung()"""
+    
 
     
     root.mainloop()
