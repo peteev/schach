@@ -1,1 +1,1 @@
-        
+ print(self.new_pos)

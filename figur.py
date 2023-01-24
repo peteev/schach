@@ -1,4 +1,4 @@
-ba = ["button", "position"]
-a1 = ["value1", "value2", "...", [2]]
-a1[3].append(ba[1])
-print(a1[3][1])
+bruh = []
+bruh.append([1,2])
+bruh.append([3,4])
+print(bruh[0])
