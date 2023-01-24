@@ -65,7 +65,7 @@ class Figur:
 class Bauer(Figur):
     def __init__(self, farbe, num):
         self.num = num
-        self.new_pos = [None, None]
+        
         super().__init__(farbe)
         if self.farbe == "w":
             self.pos = [6,self.num-1]
@@ -91,30 +91,29 @@ class Bauer(Figur):
         #beim ersten zug 1 oder 2 nach vorne, dann nur 1
         #wenn figur diagonal [pos[0] + 1, pos[1] + 1] steht
         #wenn bauer 2 nach vorne geht (en passant)
+        self.new_pos = []
         
         if self.farbe == "w" and self.pos[0] == 6:
-            self.new_pos[0] = [5,4]
-            self.new_pos[1] = [self.pos[1]]
+            self.new_pos.append([5, self.pos[1]])
+            self.new_pos.append([4, self.pos[1]])
 
         elif self.farbe == "b" and self.pos[0] == 1:
-            self.new_pos[0] = [2,3]
-            self.new_pos[1] = [self.pos[1]]
+            self.new_pos.append([3, self.pos[1]])
+            self.new_pos.append([2, self.pos[1]])
 
         elif self.farbe == "w" and self.pos[0] != 6:
-            self.new_pos[0] = [self.pos[0]-1]
             
-            self.new_pos[1] = [self.pos[1]]
+            self.new_pos.append([self.pos[0]-1, self.pos[1]])
         
         elif self.farbe == "b" and self.pos[0] != 1:
-            self.new_pos[0] = [self.pos[0]+1]
-            self.new_pos[1] = [self.pos[1]]
+            
+            self.new_pos.append([self.pos[0]+1, self.pos[1]])
             
             
 class Springer(Figur):
     def __init__(self, farbe, num):
         super().__init__(farbe)
         self.num = num
-        self.new_pos = [None, None]
         if self.num == 1 and self.farbe == "w":
             self.pos = [7,1]
         elif self.num == 2 and self.farbe == "w":
@@ -129,8 +128,24 @@ class Springer(Figur):
         # kann nur 2 nach vorne und 1 zur seite
         # wenn nach vorne: [pos[0] + 1 oder -1, pos[1] + 2 oder -2
         # wenn zur seite: [pos[0] + 2 oder -2, pos[1] + 1 oder -2
-        pass
+        self.new_pos = []
+        
+        self.new_pos.append([self.pos[0]+2,self.pos[1]+1])
+        self.new_pos.append([self.pos[0]+2,self.pos[1]-1])
+        self.new_pos.append([self.pos[0]-2,self.pos[1]+1])
+        self.new_pos.append([self.pos[0]-2,self.pos[1]-1])
+        self.new_pos.append([self.pos[0]+1,self.pos[1]+2])
+        self.new_pos.append([self.pos[0]-1,self.pos[1]+2])
+        self.new_pos.append([self.pos[0]+1,self.pos[1]-2])
+        self.new_pos.append([self.pos[0]-1,self.pos[1]-2])
+        
+        for i in range(len(self.new_pos)):
+            if self.new_pos[i][0] >= 8 or self.new_pos[i][1] >= 8 or self.new_pos[i][0] < 0 or self.new_pos[i][1] < 0:
+                self.new_pos[i][0] = None
+                self.new_pos[i][1] = None
+                
             
+        
         
         
 
@@ -152,7 +167,24 @@ class Laeufer(Figur):
 
     def pos_moves(self):
         # diagonal, also new_pos[pos[0]+ i in range(bis zum ende des bretts)], pos[1] + i in range(bis zum ende des bretts)]
-        pass
+        self.new_pos = []
+        for i in range(1,8):
+            if self.pos[0]+i >= 0 and self.pos[1]+i >= 0 and self.pos[0]+i < 8 and self.pos[1]+i < 8:
+                self.new_pos.append([self.pos[0]+i, self.pos[1]+i])
+                
+            if self.pos[0]+i >= 0 and self.pos[1]-i >= 0 and self.pos[0]+i < 8 and self.pos[1]-i < 8:
+                self.new_pos.append([self.pos[0]+i, self.pos[1]-i])
+                
+            if self.pos[0]-i >= 0 and self.pos[1]-i >= 0 and self.pos[0]-i < 8 and self.pos[1]-i < 8:
+                self.new_pos.append([self.pos[0]-i, self.pos[1]-i])
+                
+            if self.pos[0]-i >= 0 and self.pos[1]+i >= 0 and self.pos[0]-i < 8 and self.pos[1]+i < 8:
+                self.new_pos.append([self.pos[0]-i, self.pos[1]+i])
+                
+            else:
+                pass
+        
+        
         
 class Turm(Figur):
     def __init__(self, farbe, num):
@@ -174,7 +206,20 @@ class Turm(Figur):
         # seitlich: [pos[0] +/- i in range(bis zum ende des brett], pos[1]]
         # vertikal: [pos[0], pos[1] +/- i in range(bis zum ende des brett]
         # castling beachten
-        pass
+        self.new_pos = []
+        for i in range(1,8):
+            if self.pos[0]+i < 8 and self.pos[0]+i >= 0:
+                self.new_pos.append([self.pos[0]+i, self.pos[1]])
+                
+            if self.pos[0]-i < 8 and self.pos[0]-i >= 0:
+                self.new_pos.append([self.pos[0]-i, self.pos[1]])
+                
+            if self.pos[1]+i < 8 and self.pos[1]+i >= 0:
+                self.new_pos.append([self.pos[0], self.pos[1]+i])
+                
+            if self.pos[1]-i < 8 and self.pos[1]-i >= 0:
+                self.new_pos.append([self.pos[0], self.pos[1]-i])
+        
         
 class Dame(Figur):
     def __init__(self, farbe):
@@ -190,7 +235,33 @@ class Dame(Figur):
         # seitlich: [pos[0] +/- i in range(bis zum ende des brett], pos[1]]
         # vertikal: [pos[0], pos[1] +/- i in range(bis zum ende des brett]
         # diagonal, also new_pos[pos[0]+ i in range(bis zum ende des bretts)], pos[1] + i in range(bis zum ende des bretts)]
-        pass
+        self.new_pos = []
+        for i in range(1,8):
+            if self.pos[0]+i >= 0 and self.pos[1]+i >= 0 and self.pos[0]+i < 8 and self.pos[1]+i < 8:
+                self.new_pos.append([self.pos[0]+i, self.pos[1]+i])
+                
+            if self.pos[0]+i >= 0 and self.pos[1]-i >= 0 and self.pos[0]+i < 8 and self.pos[1]-i < 8:
+                self.new_pos.append([self.pos[0]+i, self.pos[1]-i])
+                
+            if self.pos[0]-i >= 0 and self.pos[1]-i >= 0 and self.pos[0]-i < 8 and self.pos[1]-i < 8:
+                self.new_pos.append([self.pos[0]-i, self.pos[1]-i])
+                
+            if self.pos[0]-i >= 0 and self.pos[1]+i >= 0 and self.pos[0]-i < 8 and self.pos[1]+i < 8:
+                self.new_pos.append([self.pos[0]-i, self.pos[1]+i])
+            
+            if self.pos[0]+i < 8 and self.pos[0]+i >= 0:
+                self.new_pos.append([self.pos[0]+i, self.pos[1]])
+                
+            if self.pos[0]-i < 8 and self.pos[0]-i >= 0:
+                self.new_pos.append([self.pos[0]-i, self.pos[1]])
+                
+            if self.pos[1]+i < 8 and self.pos[1]+i >= 0:
+                self.new_pos.append([self.pos[0], self.pos[1]+i])
+                
+            if self.pos[1]-i < 8 and self.pos[1]-i >= 0:
+                self.new_pos.append([self.pos[0], self.pos[1]-i])
+            else:
+                pass
 
 class Koenig(Figur):
     def __init__(self, farbe):
@@ -204,7 +275,22 @@ class Koenig(Figur):
     def pos_moves(self):
         # 1 seitlich und diagonal
         # [pos[0] +/- 1, pos[1] +/- 1
-        pass
+        self.new_pos = []
+        self.new_pos.append([self.pos[0]+1, self.pos[1]+1])
+        self.new_pos.append([self.pos[0], self.pos[1]+1])
+        self.new_pos.append([self.pos[0]-1, self.pos[1]+1])
+        self.new_pos.append([self.pos[0]+1, self.pos[1]])
+        self.new_pos.append([self.pos[0]+1, self.pos[1]-1])
+        self.new_pos.append([self.pos[0], self.pos[1]-1])
+        self.new_pos.append([self.pos[0]-1, self.pos[1]-1])
+        self.new_pos.append([self.pos[0]-1, self.pos[1]])
+        
+        for i in range(len(self.new_pos)):
+            if self.new_pos[i][0] >= 8 or self.new_pos[i][1] >= 8 or self.new_pos[i][0] < 0 or self.new_pos[i][1] < 0:
+                self.new_pos[i][0] = None
+                self.new_pos[i][1] = None
+        print(self.pos)
+        print(self.new_pos)
 
 global chess_board
 chess_board = [[0 for i in range(8)] for j in range(8)]
@@ -361,6 +447,8 @@ def labelcheck(event):
     piececolumn = event.widget.master.grid_info()["column"]
     piece_board[piecerow][piececolumn].pos_moves()
     
+    
+    
         
     
 
@@ -375,19 +463,19 @@ def framecheck(event):
     
     if piececlick:
         
-        for i in range(len(piece_board[piecerow][piececolumn].new_pos[0])):
-            for j in range(len(piece_board[piecerow][piececolumn].new_pos[1])):
-                if row == piece_board[piecerow][piececolumn].new_pos[0][i] and column == piece_board[piecerow][piececolumn].new_pos[1][j]:
-                    chess_board[row][column] = chess_board[piecerow][piececolumn]
-                    piece_board[row][column] = piece_board[piecerow][piececolumn]
-                    piece_board[piecerow][piececolumn].pos = [row, column]
-                    chess_board[piecerow][piececolumn] = 0
-                elif row != piece_board[piecerow][piececolumn].new_pos[0][i] and column != piece_board[piecerow][piececolumn].new_pos[1][j]:
-                    print("ERROR: Inkorrekter Spielzug")
+        for i in range(len(piece_board[piecerow][piececolumn].new_pos)):
+            if row == piece_board[piecerow][piececolumn].new_pos[i][0] and column == piece_board[piecerow][piececolumn].new_pos[i][1]:
+                chess_board[row][column] = chess_board[piecerow][piececolumn]
+                piece_board[row][column] = piece_board[piecerow][piececolumn]
+                piece_board[piecerow][piececolumn].pos = [row, column]
+                chess_board[piecerow][piececolumn] = 0
+                
+            
         
         
     piececlick = False
     del_pieces()
+    
     startaufstellung()
     
     
