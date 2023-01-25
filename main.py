@@ -100,16 +100,16 @@ class Bauer(Figur):
 
             self.new_pos.append([self.pos[0] + 1, self.pos[1]])
         #Falls bei weißen eine figur oben links steht
-        if self.farbe == "w" and chess_board[self.pos[0]-1][self.pos[1]-1] != 0:
+        if self.pos[1] != 0 and self.farbe == "w" and chess_board[self.pos[0]-1][self.pos[1]-1] != 0:
             self.new_pos.append([self.pos[0] - 1, self.pos[1]-1])
         # Falls bei weißen eine figur oben rechts steht
-        if self.farbe == "w" and chess_board[self.pos[0]-1][self.pos[1]+1] != 0:
+        if self.pos[1] != 7 and self.farbe == "w" and chess_board[self.pos[0]-1][self.pos[1]+1] != 0 :
             self.new_pos.append([self.pos[0] - 1, self.pos[1]+1])
         #Falls bei schwarzen eine figur unten links steht
-        if self.farbe == "b" and chess_board[self.pos[0]+1][self.pos[1]-1] != 0:
+        if self.pos[1] != 0 and self.farbe == "b" and chess_board[self.pos[0]+1][self.pos[1]-1] != 0:
             self.new_pos.append([self.pos[0] + 1, self.pos[1]-1])
         #Falls bei schwarzen eine figur unten rechts steht
-        if self.farbe == "b" and chess_board[self.pos[0]+1][self.pos[1]+1] != 0:
+        if self.pos[1] != 7 and self.farbe == "b" and chess_board[self.pos[0]+1][self.pos[1]+1] != 0:
             self.new_pos.append([self.pos[0] + 1, self.pos[1]+1])
 
 class Springer(Figur):
@@ -146,7 +146,7 @@ class Springer(Figur):
             if self.new_pos[i][0] >= 8 or self.new_pos[i][1] >= 8 or self.new_pos[i][0] < 0 or self.new_pos[i][1] < 0:
                 self.new_pos[i][0] = None
                 self.new_pos[i][1] = None
-
+        
 
 class Laeufer(Figur):
     def __init__(self, farbe, num):
@@ -179,9 +179,34 @@ class Laeufer(Figur):
 
             if self.pos[0] - i >= 0 and self.pos[1] + i >= 0 and self.pos[0] - i < 8 and self.pos[1] + i < 8:
                 self.new_pos.append([self.pos[0] - i, self.pos[1] + i])
-
-            else:
-                pass
+        
+        # Zum überprüfen ob andere Figuren im Weg sind
+        for i in range(1,8):
+            if self.pos[0] + i >= 0 and self.pos[1] + i >= 0 and self.pos[0] + i < 8 and self.pos[1] + i < 8 and chess_board[self.pos[0]+i][self.pos[1]+i]:
+                for j in range(i,8):
+                    if [self.pos[0]+j+1, self.pos[1]+j+1] in self.new_pos:
+                        self.new_pos.remove([self.pos[0]+j+1, self.pos[1]+j+1])
+            
+            if self.pos[0] + i >= 0 and self.pos[1] - i >= 0 and self.pos[0] + i < 8 and self.pos[1] - i < 8 and chess_board[self.pos[0]+i][self.pos[1]-i]:
+                for j in range(i,8):
+                    if [self.pos[0]+j+1, self.pos[1]-j-1] in self.new_pos:
+                        self.new_pos.remove([self.pos[0]+j+1, self.pos[1]-j-1])
+                        
+            if self.pos[0] - i >= 0 and self.pos[1] - i >= 0 and self.pos[0] - i < 8 and self.pos[1] - i < 8 and chess_board[self.pos[0]-i][self.pos[1]-i]:
+                for j in range(i,8):
+                    if [self.pos[0]-j-1, self.pos[1]-j-1] in self.new_pos:
+                        self.new_pos.remove([self.pos[0]-j-1, self.pos[1]-j-1])
+                        
+            if self.pos[0] - i >= 0 and self.pos[1] + i >= 0 and self.pos[0] - i < 8 and self.pos[1] + i < 8 and chess_board[self.pos[0]-i][self.pos[1]+i]:
+                for j in range(i,8):
+                    if [self.pos[0]-j-1, self.pos[1]+j+1] in self.new_pos:
+                        self.new_pos.remove([self.pos[0]-j-1, self.pos[1]+j+1])
+                    
+        
+                    
+        
+        
+        
 
 
 class Turm(Figur):
@@ -218,6 +243,28 @@ class Turm(Figur):
             if self.pos[1] - i < 8 and self.pos[1] - i >= 0:
                 self.new_pos.append([self.pos[0], self.pos[1] - i])
 
+
+        for i in range(1,8):
+            if self.pos[0] + i < 8 and self.pos[0] + i >= 0 and chess_board[self.pos[0]+i][self.pos[1]]:
+                 for j in range(i,8):
+                     if [self.pos[0]+j+1, self.pos[1]] in self.new_pos:
+                         self.new_pos.remove([self.pos[0]+j+1, self.pos[1]])                
+                         
+            if self.pos[0] - i < 8 and self.pos[0] - i >= 0 and chess_board[self.pos[0]-i][self.pos[1]]:
+                 for j in range(i,8):
+                     if [self.pos[0]-j-1, self.pos[1]] in self.new_pos:
+                         self.new_pos.remove([self.pos[0]-j-1, self.pos[1]])
+
+            if self.pos[1] + i < 8 and self.pos[1] + i >= 0 and chess_board[self.pos[0]][self.pos[1]+i]:
+                 for j in range(i,8):
+                     if [self.pos[0], self.pos[1]+j+1] in self.new_pos:
+                         self.new_pos.remove([self.pos[0], self.pos[1]+j+1])
+        
+            if self.pos[1] - i < 8 and self.pos[1] - i >= 0 and chess_board[self.pos[0]][self.pos[1]-i]:
+                 for j in range(i,8):
+                     if [self.pos[0], self.pos[1]-j-1] in self.new_pos:
+                         self.new_pos.remove([self.pos[0], self.pos[1]-j-1])
+        
 
 class Dame(Figur):
     def __init__(self, farbe):
@@ -259,8 +306,49 @@ class Dame(Figur):
                 self.new_pos.append([self.pos[0], self.pos[1] - i])
             else:
                 pass
+            
+        for i in range(1,8):
+            if self.pos[0] + i >= 0 and self.pos[1] + i >= 0 and self.pos[0] + i < 8 and self.pos[1] + i < 8 and chess_board[self.pos[0]+i][self.pos[1]+i]:
+                for j in range(i,8):
+                    if [self.pos[0]+j+1, self.pos[1]+j+1] in self.new_pos:
+                        self.new_pos.remove([self.pos[0]+j+1, self.pos[1]+j+1])
+            
+            if self.pos[0] + i >= 0 and self.pos[1] - i >= 0 and self.pos[0] + i < 8 and self.pos[1] - i < 8 and chess_board[self.pos[0]+i][self.pos[1]-i]:
+                for j in range(i,8):
+                    if [self.pos[0]+j+1, self.pos[1]-j-1] in self.new_pos:
+                        self.new_pos.remove([self.pos[0]+j+1, self.pos[1]-j-1])
+                        
+            if self.pos[0] - i >= 0 and self.pos[1] - i >= 0 and self.pos[0] - i < 8 and self.pos[1] - i < 8 and chess_board[self.pos[0]-i][self.pos[1]-i]:
+                for j in range(i,8):
+                    if [self.pos[0]-j-1, self.pos[1]-j-1] in self.new_pos:
+                        self.new_pos.remove([self.pos[0]-j-1, self.pos[1]-j-1])
+                        
+            if self.pos[0] - i >= 0 and self.pos[1] + i >= 0 and self.pos[0] - i < 8 and self.pos[1] + i < 8 and chess_board[self.pos[0]-i][self.pos[1]+i]:
+                for j in range(i,8):
+                    if [self.pos[0]-j-1, self.pos[1]+j+1] in self.new_pos:
+                        self.new_pos.remove([self.pos[0]-j-1, self.pos[1]+j+1])
 
+            if self.pos[0] + i < 8 and self.pos[0] + i >= 0 and chess_board[self.pos[0]+i][self.pos[1]]:
+                 for j in range(i,8):
+                     if [self.pos[0]+j+1, self.pos[1]] in self.new_pos:
+                         self.new_pos.remove([self.pos[0]+j+1, self.pos[1]])                
+                         
+            if self.pos[0] - i < 8 and self.pos[0] - i >= 0 and chess_board[self.pos[0]-i][self.pos[1]]:
+                 for j in range(i,8):
+                     if [self.pos[0]-j-1, self.pos[1]] in self.new_pos:
+                         self.new_pos.remove([self.pos[0]-j-1, self.pos[1]])
 
+            if self.pos[1] + i < 8 and self.pos[1] + i >= 0 and chess_board[self.pos[0]][self.pos[1]+i]:
+                 for j in range(i,8):
+                     if [self.pos[0], self.pos[1]+j+1] in self.new_pos:
+                         self.new_pos.remove([self.pos[0], self.pos[1]+j+1])
+        
+            if self.pos[1] - i < 8 and self.pos[1] - i >= 0 and chess_board[self.pos[0]][self.pos[1]-i]:
+                 for j in range(i,8):
+                     if [self.pos[0], self.pos[1]-j-1] in self.new_pos:
+                         self.new_pos.remove([self.pos[0], self.pos[1]-j-1])
+                         
+        print(self.pos_moves)
 class Koenig(Figur):
     def __init__(self, farbe):
         super().__init__(farbe)
@@ -453,16 +541,29 @@ def labelcheck(event):
 
     #Gegnerische figuren werden eingenommen, falls diese auf den mögl. positionen stehen
     if old_farbe != piece_board[piecerow][piececolumn].farbe and old_farbe != "d":
-        for i in range(len(piece_board[piecerow_old][piececolumn_old].new_pos)):
-            if piecerow == piece_board[piecerow_old][piececolumn_old].new_pos[i][0] and piececolumn == \
-                    piece_board[piecerow_old][piececolumn_old].new_pos[i][1]:
-                chess_board[piecerow][piececolumn] = chess_board[piecerow_old][piececolumn_old]
-                piece_board[piecerow][piececolumn] = piece_board[piecerow_old][piececolumn_old]
-                piece_board[piecerow_old][piececolumn_old].pos = [piecerow, piececolumn]
-                chess_board[piecerow_old][piececolumn_old] = 0
+        if (piece_board[piecerow_old][piececolumn_old].farbe != "b" and whitecount == blackcount) or (whitecount == 0 or (blackcount+1 == whitecount and piece_board[piecerow_old][piececolumn_old].farbe == "b")):
+            for i in range(len(piece_board[piecerow_old][piececolumn_old].new_pos)):
+                if piecerow == piece_board[piecerow_old][piececolumn_old].new_pos[i][0] and piececolumn == piece_board[piecerow_old][piececolumn_old].new_pos[i][1]:
+                    if chess_board[piecerow][piececolumn] == "wkönig":
+                        print("SCHWARZ GEWINNT")
+                    elif chess_board[piecerow][piececolumn] == "bkönig":
+                        print("WEISS GEWINNT")
+                    chess_board[piecerow][piececolumn] = chess_board[piecerow_old][piececolumn_old]
+                    piece_board[piecerow][piececolumn] = piece_board[piecerow_old][piececolumn_old]
+                    piece_board[piecerow_old][piececolumn_old].pos = [piecerow, piececolumn]
+                    chess_board[piecerow_old][piececolumn_old] = 0
+                    
+            if piece_board[piecerow][piececolumn].farbe == "w":
+                whitecount += 1
+            if piece_board[piecerow][piececolumn].farbe == "b":
+                blackcount += 1
+            if whitecount < blackcount:
+                blackcount -= 1
 
+    print("w", whitecount, "b", blackcount)
     del_pieces()
     startaufstellung()
+    
     old_farbe = old_piece.farbe
     piecerow_old = oldrow_placeholder
     piececolumn_old = oldcolumn_placeholder
@@ -498,9 +599,11 @@ def framecheck(event):
                     whitecount += 1
                 if piece_board[row][column].farbe == "b":
                     blackcount += 1
-    print("white", whitecount, "black", blackcount)
-    print(piece_board[row][column].farbe)
+                if whitecount < blackcount:
+                    blackcount -= 1
+    
     piececlick = False
+    print("w", whitecount, "b", blackcount)
     del_pieces()
 
     startaufstellung()
