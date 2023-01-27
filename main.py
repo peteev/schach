@@ -515,7 +515,7 @@ chess_board = [[0 for i in range(8)] for j in range(8)]
 global piece_board
 piece_board = [[0 for i in range(8)] for j in range(8)]
 
-color = {0: "w", 1: "b"}
+# Dictionaries mit allen Figuren
 
 king = {
     "namew": "wkönig",
@@ -596,6 +596,7 @@ pawn = {
     "figurb8": Bauer("b", 8)
 }
 
+# 2D darstellung mit Listen der Figuren
 chess_board[rook["figurb1"].pos[0]][rook["figurb1"].pos[1]] = rook["nameb"]
 chess_board[knight["figurb1"].pos[0]][knight["figurb1"].pos[1]] = knight["nameb"]
 chess_board[bishop["figurb1"].pos[0]][bishop["figurb1"].pos[1]] = bishop["nameb"]
@@ -655,7 +656,7 @@ um_countw = 0
 um_countb = 0
 
 
-
+# Umwandlung von einem Bauern in andere Figuren (wollte noch andere Implementieren aber hat nicht ordentlich Funktioniert)
 
 def umwandlung(y,x):
     global um_countb
@@ -674,7 +675,7 @@ def umwandlung(y,x):
         piece_board[y][x].pos = [y,x]
         piece_board[y][x].pos_moves()
         
-        
+# Mausclick auf andere Figuren wird überprüft
 
 def labelcheck(event):
     global piecerow_old
@@ -735,7 +736,7 @@ def labelcheck(event):
 
 
 
-
+# Mausclick auf andere Felder wird überprüft
 
 def framecheck(event):
     global piececlick
