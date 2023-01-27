@@ -4,12 +4,12 @@ from PIL import Image, ImageTk
 
 img = {}
 
-letters = ["a", "b", "c", "d", "e", "f", "g", "h"]
-
+# Fenster erstellen
 root = tk.Tk()
 board = tk.Frame(root, bg="white", width=800, height=800)
-root.geometry("800x800")
+root.geometry("1000x800")
 root.wm_attributes("-transparentcolor")
+
 
 # Bilder von Schachfiguren öffnen und laden
 photo = Image.open("pieces/blackpawn.png")
@@ -50,6 +50,10 @@ img["wq"] = wqeen_img
 img["bk"] = bking_img
 img["wk"] = wking_img
 
+schachw = False
+schachb = False
+schachmattw = False
+schachmattb = False
 
 # Klassen (https://www.w3schools.com/python/python_classes.asp; https://www.w3schools.com/python/python_inheritance.asp)
 class Figur:
@@ -68,6 +72,7 @@ class Bauer(Figur):
         if self.farbe == "b":
             self.pos = [1, self.num - 1]
 
+        self.art = "bauer"
 
         # Umwandlung zu anderen Figuren sobald Bauer die andere Spielseite erreicht (funktioniert nicht)
         self.umwandlung = False
@@ -76,7 +81,7 @@ class Bauer(Figur):
             self.umwandlung = True
         elif self.farbe == "b" and self.posY == 0:
             self.umwandlung = True"""
-
+    # Mögliche Züge für Bauer
     def pos_moves(self):
         # beim ersten zug 1 oder 2 nach vorne, dann nur 1
         # wenn figur diagonal [pos[0] + 1, pos[1] + 1] steht
@@ -111,6 +116,14 @@ class Bauer(Figur):
         #Falls bei schwarzen eine figur unten rechts steht
         if self.pos[1] != 7 and self.farbe == "b" and chess_board[self.pos[0]+1][self.pos[1]+1] != 0:
             self.new_pos.append([self.pos[0] + 1, self.pos[1]+1])
+            
+        global schachw
+        global schachb
+        for i in range(len(self.new_pos)):
+            if self.farbe == "w" and self.new_pos[i] == king["figurb"].pos:
+                schachb = True
+            elif self.farbe == "b" and self.new_pos[i] == king["figurw"].pos:
+                schachw = True
 
 class Springer(Figur):
     def __init__(self, farbe, num):
@@ -124,13 +137,16 @@ class Springer(Figur):
             self.pos = [0, 1]
         elif self.num == 2 and self.farbe == "b":
             self.pos = [0, 6]
+        self.art = "springer"
 
-
-
+    # Mögliche Züge für Springer
     def pos_moves(self):
         # kann nur 2 nach vorne und 1 zur seite
         # wenn nach vorne: [pos[0] + 1 oder -1, pos[1] + 2 oder -2
         # wenn zur seite: [pos[0] + 2 oder -2, pos[1] + 1 oder -2
+        global schachw
+        global schachb
+        
         self.new_pos = []
 
         self.new_pos.append([self.pos[0] + 2, self.pos[1] + 1])
@@ -142,10 +158,17 @@ class Springer(Figur):
         self.new_pos.append([self.pos[0] + 1, self.pos[1] - 2])
         self.new_pos.append([self.pos[0] - 1, self.pos[1] - 2])
 
+
+
         for i in range(len(self.new_pos)):
             if self.new_pos[i][0] >= 8 or self.new_pos[i][1] >= 8 or self.new_pos[i][0] < 0 or self.new_pos[i][1] < 0:
                 self.new_pos[i][0] = None
                 self.new_pos[i][1] = None
+            if self.farbe == "w" and self.new_pos[i] == king["figurb"].pos:
+                schachb = True
+            elif self.farbe == "b" and self.new_pos[i] == king["figurw"].pos:
+                schachw = True
+        
         
 
 class Laeufer(Figur):
@@ -161,24 +184,33 @@ class Laeufer(Figur):
             self.pos = [0, 2]
         else:
             self.pos = [0, 5]
+        self.art = "läufer"
 
-
-
+    # Mögliche Züge für Läufer
     def pos_moves(self):
         # diagonal, also new_pos[pos[0]+ i in range(bis zum ende des bretts)], pos[1] + i in range(bis zum ende des bretts)]
         self.new_pos = []
+        self.hochlinks = []
+        self.hochrechts = []
+        self.untenlinks = []
+        self.untenrechts = []
+        self.schachlinie = []
         for i in range(1, 8):
             if self.pos[0] + i >= 0 and self.pos[1] + i >= 0 and self.pos[0] + i < 8 and self.pos[1] + i < 8:
                 self.new_pos.append([self.pos[0] + i, self.pos[1] + i])
+                self.untenrechts.append([self.pos[0] + i, self.pos[1] + i])
 
             if self.pos[0] + i >= 0 and self.pos[1] - i >= 0 and self.pos[0] + i < 8 and self.pos[1] - i < 8:
                 self.new_pos.append([self.pos[0] + i, self.pos[1] - i])
+                self.untenlinks.append([self.pos[0] + i, self.pos[1] - i])
 
             if self.pos[0] - i >= 0 and self.pos[1] - i >= 0 and self.pos[0] - i < 8 and self.pos[1] - i < 8:
                 self.new_pos.append([self.pos[0] - i, self.pos[1] - i])
+                self.hochlinks.append([self.pos[0] - i, self.pos[1] - i])
 
             if self.pos[0] - i >= 0 and self.pos[1] + i >= 0 and self.pos[0] - i < 8 and self.pos[1] + i < 8:
                 self.new_pos.append([self.pos[0] - i, self.pos[1] + i])
+                self.hochrechts.append([self.pos[0] - i, self.pos[1] + i])
         
         # Zum überprüfen ob andere Figuren im Weg sind
         for i in range(1,8):
@@ -202,8 +234,26 @@ class Laeufer(Figur):
                     if [self.pos[0]-j-1, self.pos[1]+j+1] in self.new_pos:
                         self.new_pos.remove([self.pos[0]-j-1, self.pos[1]+j+1])
                     
-        
-                    
+        global schachw
+        global schachb
+        for i in range(len(self.new_pos)):
+            hl = self.hochlinks.count(king["figurb"].pos)
+            hr = self.hochrechts.count(king["figurb"].pos)
+            ul = self.untenlinks.count(king["figurb"].pos)
+            ur = self.untenrechts.count(king["figurb"].pos)
+            if hl <= 1:
+                self.schachlinie = self.hochlinks
+            elif hr <= 1:
+                self.schachlinie = self.hochrechts
+            elif ul <= 1:
+                self.schachlinie = self.untenlinks
+            elif ur <= 1:
+                self.schachlinie = self.untenrechts
+            if self.farbe == "w" and self.new_pos[i] == king["figurb"].pos:
+                schachb = True
+                
+            elif self.farbe == "b" and self.new_pos[i] == king["figurw"].pos:
+                schachw = True         
         
         
         
@@ -223,25 +273,36 @@ class Turm(Figur):
             self.pos = [0, 0]
         else:
             self.pos = [0, 7]
-
+        self.art = "turm"
+        
+    # Mögliche Züge für Turm
     def pos_moves(self):
         # nur seitlich oder vertikal
         # seitlich: [pos[0] +/- i in range(bis zum ende des brett], pos[1]]
         # vertikal: [pos[0], pos[1] +/- i in range(bis zum ende des brett]
         # castling beachten
         self.new_pos = []
+        self.hoch = []
+        self.rechts = []
+        self.links = []
+        self.unten = []
+        self.schachlinie = []
         for i in range(1, 8):
             if self.pos[0] + i < 8 and self.pos[0] + i >= 0:
                 self.new_pos.append([self.pos[0] + i, self.pos[1]])
+                self.unten.append([self.pos[0] + i, self.pos[1]])
 
             if self.pos[0] - i < 8 and self.pos[0] - i >= 0:
                 self.new_pos.append([self.pos[0] - i, self.pos[1]])
+                self.hoch.append([self.pos[0] - i, self.pos[1]])
 
             if self.pos[1] + i < 8 and self.pos[1] + i >= 0:
                 self.new_pos.append([self.pos[0], self.pos[1] + i])
+                self.rechts.append([self.pos[0], self.pos[1] + i])
 
             if self.pos[1] - i < 8 and self.pos[1] - i >= 0:
                 self.new_pos.append([self.pos[0], self.pos[1] - i])
+                self.links.append([self.pos[0], self.pos[1] - i])
 
 
         for i in range(1,8):
@@ -264,46 +325,86 @@ class Turm(Figur):
                  for j in range(i,8):
                      if [self.pos[0], self.pos[1]-j-1] in self.new_pos:
                          self.new_pos.remove([self.pos[0], self.pos[1]-j-1])
+        global schachw
+        global schachb
         
-
+        for i in range(len(self.new_pos)):
+            h = self.hoch.count(king["figurb"].pos)
+            r = self.rechts.count(king["figurb"].pos)
+            l = self.links.count(king["figurb"].pos)
+            u = self.unten.count(king["figurb"].pos)
+            if h <= 1:
+                self.schachlinie = self.hoch
+            elif r <= 1:
+                self.schachlinie = self.rechts
+            elif l <= 1:
+                self.schachlinie = self.links
+            elif u <= 1:
+                self.schachlinie = self.unten
+            if self.farbe == "w" and self.new_pos[i] == king["figurb"].pos:
+                schachb = True
+            elif self.farbe == "b" and self.new_pos[i] == king["figurw"].pos:
+                schachw = True
+                
 class Dame(Figur):
-    def __init__(self, farbe):
+    def __init__(self, farbe, num):
         super().__init__(farbe)
+        self.num = num
         if self.farbe == "w":
             self.pos = [7, 3]
         else:
             self.pos = [0, 3]
-
+        self.art = "dame"
+        
+    # Mögliche Züge für Dame
     def pos_moves(self):
         # seitlich, vertikal, diagonal
         # seitlich: [pos[0] +/- i in range(bis zum ende des brett], pos[1]]
         # vertikal: [pos[0], pos[1] +/- i in range(bis zum ende des brett]
         # diagonal, also new_pos[pos[0]+ i in range(bis zum ende des bretts)], pos[1] + i in range(bis zum ende des bretts)]
         self.new_pos = []
+        self.hochlinks = []
+        self.hochrechts = []
+        self.untenlinks = []
+        self.untenrechts = []
+        self.hoch = []
+        self.rechts = []
+        self.links = []
+        self.unten = []
+        global schachw
+        global schachb
         for i in range(1, 8):
             if self.pos[0] + i >= 0 and self.pos[1] + i >= 0 and self.pos[0] + i < 8 and self.pos[1] + i < 8:
                 self.new_pos.append([self.pos[0] + i, self.pos[1] + i])
+                self.untenrechts.append([self.pos[0] + i, self.pos[1] + i])
 
             if self.pos[0] + i >= 0 and self.pos[1] - i >= 0 and self.pos[0] + i < 8 and self.pos[1] - i < 8:
                 self.new_pos.append([self.pos[0] + i, self.pos[1] - i])
+                self.untenlinks.append([self.pos[0] + i, self.pos[1] - i])
 
             if self.pos[0] - i >= 0 and self.pos[1] - i >= 0 and self.pos[0] - i < 8 and self.pos[1] - i < 8:
                 self.new_pos.append([self.pos[0] - i, self.pos[1] - i])
+                self.hochlinks.append([self.pos[0] - i, self.pos[1] - i])
 
             if self.pos[0] - i >= 0 and self.pos[1] + i >= 0 and self.pos[0] - i < 8 and self.pos[1] + i < 8:
                 self.new_pos.append([self.pos[0] - i, self.pos[1] + i])
+                self.hochrechts.append([self.pos[0] - i, self.pos[1] + i])
 
             if self.pos[0] + i < 8 and self.pos[0] + i >= 0:
                 self.new_pos.append([self.pos[0] + i, self.pos[1]])
+                self.unten.append([self.pos[0] + i, self.pos[1]])
 
             if self.pos[0] - i < 8 and self.pos[0] - i >= 0:
                 self.new_pos.append([self.pos[0] - i, self.pos[1]])
+                self.hoch.append([self.pos[0] - i, self.pos[1]])
 
             if self.pos[1] + i < 8 and self.pos[1] + i >= 0:
                 self.new_pos.append([self.pos[0], self.pos[1] + i])
+                self.rechts.append([self.pos[0], self.pos[1] + i])
 
             if self.pos[1] - i < 8 and self.pos[1] - i >= 0:
                 self.new_pos.append([self.pos[0], self.pos[1] - i])
+                self.links.append([self.pos[0], self.pos[1] - i])
             else:
                 pass
             
@@ -348,7 +449,37 @@ class Dame(Figur):
                      if [self.pos[0], self.pos[1]-j-1] in self.new_pos:
                          self.new_pos.remove([self.pos[0], self.pos[1]-j-1])
                          
-        print(self.pos_moves)
+        for i in range(len(self.new_pos)):
+            hl = self.hochlinks.count(king["figurb"].pos)
+            hr = self.hochrechts.count(king["figurb"].pos)
+            ul = self.untenlinks.count(king["figurb"].pos)
+            ur = self.untenrechts.count(king["figurb"].pos)
+            h = self.hoch.count(king["figurb"].pos)
+            r = self.rechts.count(king["figurb"].pos)
+            l = self.links.count(king["figurb"].pos)
+            u = self.unten.count(king["figurb"].pos)
+            if hl <= 1:
+                self.schachlinie = self.hochlinks
+            elif hr <= 1:
+                self.schachlinie = self.hochrechts
+            elif ul <= 1:
+                self.schachlinie = self.untenlinks
+            elif ur <= 1:
+                self.schachlinie = self.untenrechts
+            elif h <= 1:
+                self.schachlinie = self.hoch
+            elif r <= 1:
+                self.schachlinie = self.rechts
+            elif l <= 1:
+                self.schachlinie = self.links
+            elif u <= 1:
+                self.schachlinie = self.unten
+            if self.farbe == "w" and self.new_pos[i] == king["figurb"].pos:
+                schachb = True
+            elif self.farbe == "b" and self.new_pos[i] == king["figurw"].pos:
+                schachw = True
+            
+                
 class Koenig(Figur):
     def __init__(self, farbe):
         super().__init__(farbe)
@@ -356,7 +487,9 @@ class Koenig(Figur):
             self.pos = [7, 4]
         else:
             self.pos = [0, 4]
-
+        self.art = "könig"
+        
+    # Mögliche Züge für 
     def pos_moves(self):
         # 1 seitlich und diagonal
         # [pos[0] +/- 1, pos[1] +/- 1
@@ -393,8 +526,26 @@ king = {
 queen = {
     "namew": "wdame",
     "nameb": "bdame",
-    "figurw": Dame("w"),
-    "figurb": Dame("b")
+    "figurw1": Dame("w", 1),
+    "figurw2": Dame("w", 2),
+    "figurw3": Dame("w", 3),
+    "figurw4": Dame("w", 4),
+    "figurw5": Dame("w", 5),
+    "figurw6": Dame("w", 6),
+    "figurw7": Dame("w", 7),
+    "figurw8": Dame("w", 8),
+    "figurw9": Dame("w", 9),
+    "figurw10": Dame("w", 10),
+    "figurb1": Dame("b", 1),
+    "figurb2": Dame("b", 2),
+    "figurb3": Dame("b", 3),
+    "figurb4": Dame("b", 4),
+    "figurb5": Dame("b", 5),
+    "figurb6": Dame("b", 6),
+    "figurb7": Dame("b", 7),
+    "figurb8": Dame("b", 8),
+    "figurb9": Dame("b", 9),
+    "figurb10": Dame("b", 10)
 }
 
 rook = {
@@ -448,7 +599,7 @@ pawn = {
 chess_board[rook["figurb1"].pos[0]][rook["figurb1"].pos[1]] = rook["nameb"]
 chess_board[knight["figurb1"].pos[0]][knight["figurb1"].pos[1]] = knight["nameb"]
 chess_board[bishop["figurb1"].pos[0]][bishop["figurb1"].pos[1]] = bishop["nameb"]
-chess_board[queen["figurb"].pos[0]][queen["figurb"].pos[1]] = queen["nameb"]
+chess_board[queen["figurb1"].pos[0]][queen["figurb1"].pos[1]] = queen["nameb"]
 chess_board[king["figurb"].pos[0]][king["figurb"].pos[1]] = king["nameb"]
 chess_board[bishop["figurb2"].pos[0]][bishop["figurb2"].pos[1]] = bishop["nameb"]
 chess_board[knight["figurb2"].pos[0]][knight["figurb2"].pos[1]] = knight["nameb"]
@@ -459,7 +610,7 @@ for i in range(1, 9):
 chess_board[rook["figurw1"].pos[0]][rook["figurw1"].pos[1]] = rook["namew"]
 chess_board[knight["figurw1"].pos[0]][knight["figurw1"].pos[1]] = knight["namew"]
 chess_board[bishop["figurw1"].pos[0]][bishop["figurw1"].pos[1]] = bishop["namew"]
-chess_board[queen["figurw"].pos[0]][queen["figurw"].pos[1]] = queen["namew"]
+chess_board[queen["figurw1"].pos[0]][queen["figurw1"].pos[1]] = queen["namew"]
 chess_board[king["figurw"].pos[0]][king["figurw"].pos[1]] = king["namew"]
 chess_board[bishop["figurw2"].pos[0]][bishop["figurw2"].pos[1]] = bishop["namew"]
 chess_board[knight["figurw2"].pos[0]][knight["figurw2"].pos[1]] = knight["namew"]
@@ -471,7 +622,7 @@ chess_board[rook["figurw2"].pos[0]][rook["figurw2"].pos[1]] = rook["namew"]
 piece_board[rook["figurb1"].pos[0]][rook["figurb1"].pos[1]] = rook["figurb1"]
 piece_board[knight["figurb1"].pos[0]][knight["figurb1"].pos[1]] = knight["figurb1"]
 piece_board[bishop["figurb1"].pos[0]][bishop["figurb1"].pos[1]] = bishop["figurb1"]
-piece_board[queen["figurb"].pos[0]][queen["figurb"].pos[1]] = queen["figurb"]
+piece_board[queen["figurb1"].pos[0]][queen["figurb1"].pos[1]] = queen["figurb1"]
 piece_board[king["figurb"].pos[0]][king["figurb"].pos[1]] = king["figurb"]
 piece_board[bishop["figurb2"].pos[0]][bishop["figurb2"].pos[1]] = bishop["figurb2"]
 piece_board[knight["figurb2"].pos[0]][knight["figurb2"].pos[1]] = knight["figurb2"]
@@ -482,35 +633,15 @@ for i in range(1, 9):
 piece_board[rook["figurw1"].pos[0]][rook["figurw1"].pos[1]] = rook["figurw1"]
 piece_board[knight["figurw1"].pos[0]][knight["figurw1"].pos[1]] = knight["figurw1"]
 piece_board[bishop["figurw1"].pos[0]][bishop["figurw1"].pos[1]] = bishop["figurw1"]
-piece_board[queen["figurw"].pos[0]][queen["figurw"].pos[1]] = queen["figurw"]
+piece_board[queen["figurw1"].pos[0]][queen["figurw1"].pos[1]] = queen["figurw1"]
 piece_board[king["figurw"].pos[0]][king["figurw"].pos[1]] = king["figurw"]
 piece_board[bishop["figurw2"].pos[0]][bishop["figurw2"].pos[1]] = bishop["figurw2"]
 piece_board[knight["figurw2"].pos[0]][knight["figurw2"].pos[1]] = knight["figurw2"]
 piece_board[rook["figurw2"].pos[0]][rook["figurw2"].pos[1]] = rook["figurw2"]
 
-# kein plan ob ich das brauch oder nicht (bisjetzt nicht)
-"""def update():
-    piece_board = [[0 for i in range(8)] for j in range(8)]
-    piece_board[rook["figurb1"].pos[0]][rook["figurb1"].pos[1]] = rook["figurb1"]
-    piece_board[knight["figurb1"].pos[0]][knight["figurb1"].pos[1]] = knight["figurb1"]
-    piece_board[bishop["figurb1"].pos[0]][bishop["figurb1"].pos[1]] = bishop["figurb1"]
-    piece_board[queen["figurb"].pos[0]][queen["figurb"].pos[1]] = queen["figurb"]
-    piece_board[king["figurb"].pos[0]][king["figurb"].pos[1]] = king["figurb"]
-    piece_board[bishop["figurb2"].pos[0]][bishop["figurb2"].pos[1]] = bishop["figurb2"]
-    piece_board[knight["figurb2"].pos[0]][knight["figurb2"].pos[1]] = knight["figurb2"]
-    piece_board[rook["figurb2"].pos[0]][rook["figurb2"].pos[1]] = rook["figurb2"]
-    for i in range(1,9):
-        piece_board[pawn["figurb%s"%(i)].pos[0]][pawn["figurb%s"%(i)].pos[1]] = pawn["figurb%s"%(i)]
-        piece_board[pawn["figurw%s"%(i)].pos[0]][pawn["figurw%s"%(i)].pos[1]] = pawn["figurw%s"%(i)]
-    piece_board[rook["figurw1"].pos[0]][rook["figurw1"].pos[1]] = rook["figurw1"]
-    piece_board[knight["figurw1"].pos[0]][knight["figurw1"].pos[1]] = knight["figurw1"]
-    piece_board[bishop["figurw1"].pos[0]][bishop["figurw1"].pos[1]] = bishop["figurw1"]
-    piece_board[queen["figurw"].pos[0]][queen["figurw"].pos[1]] = queen["figurw"]
-    piece_board[king["figurw"].pos[0]][king["figurw"].pos[1]] = king["figurw"]
-    piece_board[bishop["figurw2"].pos[0]][bishop["figurw2"].pos[1]] = bishop["figurw2"]
-    piece_board[knight["figurw2"].pos[0]][knight["figurw2"].pos[1]] = knight["figurw2"]
-    piece_board[rook["figurw2"].pos[0]][rook["figurw2"].pos[1]] = rook["figurw2"]
-"""
+
+
+
 whitecount = 0
 blackcount = 0
 piececlick = False
@@ -520,6 +651,30 @@ old_farbe = "d"
 piecerow_old = 99
 piececolumn_old = 99
 
+um_countw = 0
+um_countb = 0
+
+
+
+
+def umwandlung(y,x):
+    global um_countb
+    global um_countw
+    if piece_board[y][x].art == "bauer" and piece_board[y][x].farbe == "w" and piece_board[y][x].pos[0] == 0:
+        um_countw += 1
+        
+        piece_board[y][x] = queen["figurw%s" %(um_countw+1)]
+        chess_board[y][x] = queen["namew"]
+        piece_board[y][x].pos = [y,x]
+        piece_board[y][x].pos_moves()
+    elif piece_board[y][x].art == "bauer" and piece_board[y][x].farbe == "b" and piece_board[y][x].pos[0] == 7:
+        um_countb += 1
+        piece_board[y][x] = queen["figurb%s" %(um_countb+1)]
+        chess_board[y][x] = queen["nameb"]
+        piece_board[y][x].pos = [y,x]
+        piece_board[y][x].pos_moves()
+        
+        
 
 def labelcheck(event):
     global piecerow_old
@@ -541,17 +696,20 @@ def labelcheck(event):
 
     #Gegnerische figuren werden eingenommen, falls diese auf den mögl. positionen stehen
     if old_farbe != piece_board[piecerow][piececolumn].farbe and old_farbe != "d":
-        if (piece_board[piecerow_old][piececolumn_old].farbe != "b" and whitecount == blackcount) or (whitecount == 0 or (blackcount+1 == whitecount and piece_board[piecerow_old][piececolumn_old].farbe == "b")):
+        if (piece_board[piecerow_old][piececolumn_old].farbe != "b" and whitecount == blackcount) or (blackcount+1 == whitecount and piece_board[piecerow_old][piececolumn_old].farbe == "b"):
             for i in range(len(piece_board[piecerow_old][piececolumn_old].new_pos)):
                 if piecerow == piece_board[piecerow_old][piececolumn_old].new_pos[i][0] and piececolumn == piece_board[piecerow_old][piececolumn_old].new_pos[i][1]:
                     if chess_board[piecerow][piececolumn] == "wkönig":
-                        print("SCHWARZ GEWINNT")
+                        open_popup_win("SCHWARZ GEWINNT")
                     elif chess_board[piecerow][piececolumn] == "bkönig":
-                        print("WEISS GEWINNT")
+                        open_popup_win("WEISS GEWINNT")
                     chess_board[piecerow][piececolumn] = chess_board[piecerow_old][piececolumn_old]
                     piece_board[piecerow][piececolumn] = piece_board[piecerow_old][piececolumn_old]
                     piece_board[piecerow_old][piececolumn_old].pos = [piecerow, piececolumn]
                     chess_board[piecerow_old][piececolumn_old] = 0
+                    umwandlung(piecerow, piececolumn)
+        
+                    
                     
             if piece_board[piecerow][piececolumn].farbe == "w":
                 whitecount += 1
@@ -559,15 +717,20 @@ def labelcheck(event):
                 blackcount += 1
             if whitecount < blackcount:
                 blackcount -= 1
-
-    print("w", whitecount, "b", blackcount)
+            if whitecount-2 >= blackcount:
+                whitecount -= 1
+        
+        """if piece_board[piecerow][piececolumn] != 0  and (piece_board[piecerow][piececolumn].art == "dame" or piece_board[piecerow][piececolumn].art == "läufer" or piece_board[piecerow][piececolumn].art == "turm") and schachb or schachw:
+            line_check(piece_board[piecerow][piececolumn])
+        schachmatt(piece_board[piecerow][piececolumn])"""
+       
+    
     del_pieces()
     startaufstellung()
     
     old_farbe = old_piece.farbe
     piecerow_old = oldrow_placeholder
     piececolumn_old = oldcolumn_placeholder
-
 
 
 
@@ -586,7 +749,7 @@ def framecheck(event):
 
     if piececlick:
         if piece_board[piecerow][piececolumn] != 0:
-            if (piece_board[piecerow][piececolumn].farbe != "b" and whitecount == blackcount) or (whitecount == 0 or (blackcount+1 == whitecount and piece_board[piecerow][piececolumn].farbe == "b")):
+            if (piece_board[piecerow][piececolumn].farbe != "b" and whitecount == blackcount) or (blackcount+1 == whitecount and piece_board[piecerow][piececolumn].farbe == "b"):
                 for i in range(len(piece_board[piecerow][piececolumn].new_pos)):
                     if row == piece_board[piecerow][piececolumn].new_pos[i][0] and column == \
                             piece_board[piecerow][piececolumn].new_pos[i][1]:
@@ -594,19 +757,70 @@ def framecheck(event):
                         piece_board[row][column] = piece_board[piecerow][piececolumn]
                         piece_board[piecerow][piececolumn].pos = [row, column]
                         chess_board[piecerow][piececolumn] = 0
-
+                        umwandlung(row, column)
+                piece_board[row][column].pos_moves()
+                
+                
                 if piece_board[row][column].farbe == "w":
                     whitecount += 1
                 if piece_board[row][column].farbe == "b":
                     blackcount += 1
                 if whitecount < blackcount:
                     blackcount -= 1
-    
+                if whitecount-2 >= blackcount:
+                    whitecount -= 1
+        """if piece_board[row][column] != 0 and (piece_board[row][column].art == "dame" or piece_board[row][column].art == "läufer" or piece_board[row][column].art == "turm") and schachb or schachw:
+            schachmatt(piece_board[row][column])
+        line_check(piece_board[row][column])"""
+        
     piececlick = False
-    print("w", whitecount, "b", blackcount)
+    
     del_pieces()
-
+    wtext = "Weiße Züge:",whitecount
+    btext = "Schwarze Züge:", blackcount
+    Label(root, text=wtext).place(x=850, y=300)
+    Label(root, text=btext).place(x=850, y=350)
     startaufstellung()
+
+
+"""def line_check(piece):
+    global count
+    count = 0
+    if piece != 0 and (piece.art == "dame" or piece.art == "läufer" or piece.art == "turm") and schachb or schachw:
+        piece.pos_moves()
+        
+        for i in range(8):
+            for j in range(8):
+                if piece_board[i][j] != 0:
+                    piece_board[i][j].pos_moves()
+                    
+                    for e in range(len(piece_board[i][j].new_pos)):
+                        if piece.farbe == "w" and piece_board[i][j].farbe == "b" and (piece.art == "dame" or piece.art == "läufer" or piece.art == "turm") and piece_board[i][j].art != "könig":
+                            count += piece.schachlinie.count(piece_board[i][j].new_pos[e])
+                        if piece.farbe =="b" and piece_board[i][j].farbe == "w" and (piece.art == "dame" or piece.art == "läufer" or piece.art == "turm") and piece_board[i][j].art != "könig":
+                            count += piece.schachlinie.count(piece_board[i][j].new_pos[e])
+        if count == 1:
+            print("NEIN")
+        
+        if count == 0:
+            print("JA")                   
+    print(count)
+
+
+def schachmatt(piece):
+    if schachb:
+        piece.pos_moves()
+        for i in range(8):
+            for j in range(8):
+                if piece_board[i][j] != 0:
+                    piece_board[i][j].pos_moves()
+                    for e in range(len(piece_board[i][j].new_pos)):
+                        if piece_board[i][j].new_pos[e] != piece.pos:
+                            #print("SCHACHMATT")
+                            pass"""
+                            
+
+
 
 
 def desImg(list):
@@ -615,9 +829,17 @@ def desImg(list):
             if chess_board[i][j] != 0 and chess_board[i][j] == list:
                 frame_list[j][i].widget.destroy()
 
-    # if moved == True:
     # event.widget.destroy() #https://stackoverflow.com/questions/52059974/how-to-delete-or-destroy-label-in-tkinter
 
+
+
+    
+
+def open_popup_win(text): #https://www.tutorialspoint.com/how-do-i-create-a-popup-window-in-tkinter
+    top = Toplevel(root)
+    top.geometry("750x250")
+    top.title("Spielende")
+    Label(top, text=text, font=("Arial 18")).place(x=150, y=80)
 
 def createGrid():
     # Visuelle darstellung des schachbretts
@@ -651,34 +873,6 @@ def addImg(list, img):  # Fügt bilder als labels in die felder ein
 
 
 def startaufstellung():
-    """for i in range(8): #für neuste python version
-        for j in range(8):
-            match chess_board[i][j]:
-                case "bbauer":
-                    addImg(frame_list[j][i], img["bp"])
-                case "wbauer":
-                    addImg(frame_list[j][i], img["wp"])
-                case "wturm":
-                    addImg(frame_list[j][i], img["wr"])
-                case "bturm":
-                    addImg(frame_list[j][i], img["br"])
-                case "wspringer":
-                    addImg(frame_list[j][i], img["wkn"])
-                case "bspringer":
-                    addImg(frame_list[j][i], img["bkn"])
-                case "wläufer":
-                    addImg(frame_list[j][i], img["wb"])
-                case "bläufer":
-                    addImg(frame_list[j][i], img["bb"])
-                case "wkönig":
-                    addImg(frame_list[j][i], img["wk"])
-                case "bkönig":
-                    addImg(frame_list[j][i], img["bk"])
-                case "wdame":
-                    addImg(frame_list[j][i], img["wq"])
-                case "bdame":
-                    addImg(frame_list[j][i], img["bq"])"""
-    # für schulpc (match case funtkioniert nur bei python 3.11)
     for i in range(8):
         for j in range(8):
             if chess_board[i][j] == "bbauer":
@@ -708,7 +902,7 @@ def startaufstellung():
 
             else:
                 pass
-
+    
 
 def del_pieces():
     for i in range(8):
@@ -719,11 +913,11 @@ def del_pieces():
 
 def createWin():  # Fenster erstellen (https://www.pythonguis.com/tutorials/create-gui-tkinter/)
     root.title("Schach")
-
+    tk.Button(root, text="Beenden", command=root.destroy).place(x=900, y=200)
+    
     createGrid()
     startaufstellung()
 
     root.mainloop()
-
 
 createWin()
