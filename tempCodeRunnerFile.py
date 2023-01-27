@@ -1,3 +1,8 @@
-for i in range(1,8):
-            if chess_board[self.pos[0]-i][self.pos[1]-i]:
-                for j in range(i,8):
+if piece_board[piecerow][piececolumn].farbe == "w":
+        whitecount += 1
+    if piece_board[piecerow][piececolumn].farbe == "b":
+        blackcount += 1
+    if whitecount < blackcount:
+        blackcount -= 1
+    if whitecount-2 >= blackcount:
+        whitecount -= 1
