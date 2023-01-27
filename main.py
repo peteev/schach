@@ -515,7 +515,7 @@ chess_board = [[0 for i in range(8)] for j in range(8)]
 global piece_board
 piece_board = [[0 for i in range(8)] for j in range(8)]
 
-color = {0: "w", 1: "b"}
+# Dictionaries mit allen Figuren
 
 king = {
     "namew": "wkönig",
@@ -596,6 +596,7 @@ pawn = {
     "figurb8": Bauer("b", 8)
 }
 
+# 2D darstellung mit Listen der Figuren
 chess_board[rook["figurb1"].pos[0]][rook["figurb1"].pos[1]] = rook["nameb"]
 chess_board[knight["figurb1"].pos[0]][knight["figurb1"].pos[1]] = knight["nameb"]
 chess_board[bishop["figurb1"].pos[0]][bishop["figurb1"].pos[1]] = bishop["nameb"]
@@ -655,7 +656,7 @@ um_countw = 0
 um_countb = 0
 
 
-
+# Umwandlung von einem Bauern in andere Figuren (wollte noch andere Implementieren aber hat nicht ordentlich Funktioniert)
 
 def umwandlung(y,x):
     global um_countb
@@ -674,7 +675,7 @@ def umwandlung(y,x):
         piece_board[y][x].pos = [y,x]
         piece_board[y][x].pos_moves()
         
-        
+# Mausclick auf andere Figuren wird überprüft
 
 def labelcheck(event):
     global piecerow_old
@@ -720,12 +721,13 @@ def labelcheck(event):
             if whitecount-2 >= blackcount:
                 whitecount -= 1
         
-        """if piece_board[piecerow][piececolumn] != 0  and (piece_board[piecerow][piececolumn].art == "dame" or piece_board[piecerow][piececolumn].art == "läufer" or piece_board[piecerow][piececolumn].art == "turm") and schachb or schachw:
-            line_check(piece_board[piecerow][piececolumn])
-        schachmatt(piece_board[piecerow][piececolumn])"""
        
     
     del_pieces()
+    wtext = "Weiße Züge:",whitecount
+    btext = "Schwarze Züge:", blackcount
+    Label(root, text=wtext).place(x=850, y=300)
+    Label(root, text=btext).place(x=850, y=350)
     startaufstellung()
     
     old_farbe = old_piece.farbe
@@ -734,7 +736,7 @@ def labelcheck(event):
 
 
 
-
+# Mausclick auf andere Felder wird überprüft
 
 def framecheck(event):
     global piececlick
@@ -769,9 +771,6 @@ def framecheck(event):
                     blackcount -= 1
                 if whitecount-2 >= blackcount:
                     whitecount -= 1
-        """if piece_board[row][column] != 0 and (piece_board[row][column].art == "dame" or piece_board[row][column].art == "läufer" or piece_board[row][column].art == "turm") and schachb or schachw:
-            schachmatt(piece_board[row][column])
-        line_check(piece_board[row][column])"""
         
     piececlick = False
     
@@ -783,41 +782,7 @@ def framecheck(event):
     startaufstellung()
 
 
-"""def line_check(piece):
-    global count
-    count = 0
-    if piece != 0 and (piece.art == "dame" or piece.art == "läufer" or piece.art == "turm") and schachb or schachw:
-        piece.pos_moves()
-        
-        for i in range(8):
-            for j in range(8):
-                if piece_board[i][j] != 0:
-                    piece_board[i][j].pos_moves()
-                    
-                    for e in range(len(piece_board[i][j].new_pos)):
-                        if piece.farbe == "w" and piece_board[i][j].farbe == "b" and (piece.art == "dame" or piece.art == "läufer" or piece.art == "turm") and piece_board[i][j].art != "könig":
-                            count += piece.schachlinie.count(piece_board[i][j].new_pos[e])
-                        if piece.farbe =="b" and piece_board[i][j].farbe == "w" and (piece.art == "dame" or piece.art == "läufer" or piece.art == "turm") and piece_board[i][j].art != "könig":
-                            count += piece.schachlinie.count(piece_board[i][j].new_pos[e])
-        if count == 1:
-            print("NEIN")
-        
-        if count == 0:
-            print("JA")                   
-    print(count)
 
-
-def schachmatt(piece):
-    if schachb:
-        piece.pos_moves()
-        for i in range(8):
-            for j in range(8):
-                if piece_board[i][j] != 0:
-                    piece_board[i][j].pos_moves()
-                    for e in range(len(piece_board[i][j].new_pos)):
-                        if piece_board[i][j].new_pos[e] != piece.pos:
-                            #print("SCHACHMATT")
-                            pass"""
                             
 
 
@@ -834,7 +799,7 @@ def desImg(list):
 
 
     
-
+# Gewinnerpopup
 def open_popup_win(text): #https://www.tutorialspoint.com/how-do-i-create-a-popup-window-in-tkinter
     top = Toplevel(root)
     top.geometry("750x250")
@@ -871,7 +836,7 @@ def addImg(list, img):  # Fügt bilder als labels in die felder ein
                 piece_list[i][j] = piece
                 image_list[i][j] = img
 
-
+# Update der Bilder der Figuren
 def startaufstellung():
     for i in range(8):
         for j in range(8):
