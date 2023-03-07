@@ -812,7 +812,7 @@ def createGrid():
     frame_list = [[None for i in range(8)] for j in range(8)]
     for i in range(8):  # erstellt die felder als frames für das schachbrettmuster
         for j in range(8):
-            # Set the background color based on the position
+            
             color = "white" if (i + j) % 2 == 0 else "gray"
             frame = tk.Frame(bg=color, width=100, height=100)
             frame.grid(row=i, column=j, sticky="nsew")
